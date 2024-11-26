@@ -1,21 +1,21 @@
 import { InlineCode } from "@/once-ui/components";
 
 const person = {
-    firstName: 'Selene',
-    lastName:  'Yu',
+    firstName: 'Elijah',
+    lastName:  'Farrell',
     get name() {
         return `${this.firstName} ${this.lastName}`;
     },
-    role:      'Design Engineer',
+    role:      'Software Engineer',
     avatar:    '/images/avatar.jpg',
-    location:  'Asia/Jakarta',        // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
-    languages: ['English', 'Bahasa']  // optional: Leave the array empty if you don't want to display languages
+    location:  'America/New_York',        // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+    languages: ['English']  // optional: Leave the array empty if you don't want to display languages
 }
 
 const newsletter = {
     display: true,
     title: <>Subscribe to {person.firstName}'s Newsletter</>,
-    description: <>I occasionally write about design, technology, and share thoughts on the intersection of creativity and engineering.</>
+    description: <>I occasionally write about technology and share thoughts on the intersection of business, faith and engineering.</>
 }
 
 const social = [
@@ -24,22 +24,22 @@ const social = [
     {
         name: 'GitHub',
         icon: 'github',
-        link: 'https://github.com/once-ui-system/nextjs-starter',
+        link: 'https://github.com/ElijahFarrell',
     },
     {
         name: 'LinkedIn',
         icon: 'linkedin',
-        link: 'https://www.linkedin.com/company/once-ui/',
+        link: 'https://www.linkedin.com/in/elijah-farrell/',
     },
     {
         name: 'X',
         icon: 'x',
-        link: '',
+        link: 'https://x.com/theElijahVFG',
     },
     {
         name: 'Email',
         icon: 'email',
-        link: 'mailto:example@gmail.com',
+        link: 'elijah.farrell.work@gmail.com',
     },
 ]
 
@@ -47,8 +47,8 @@ const home = {
     label: 'Home',
     title: `${person.name}'s Portfolio`,
     description: `Portfolio website showcasing my work as a ${person.role}`,
-    headline: <>Design engineer and builder</>,
-    subline: <>I'm Selene, a design engineer at <InlineCode>FLY</InlineCode>, where I craft intuitive<br/> user experiences. After hours, I build my own projects.</>
+    headline: <>Software engineer and builder</>,
+    subline: <>I'm Elijah, a Software engineer at <InlineCode>Cyborg Mobile</InlineCode>, where I craft intuitive<br/> AI solutions and websites. After hours, I build my own projects.</>
 }
 
 const about = {
@@ -69,97 +69,104 @@ const about = {
     intro: {
         display: true,
         title: 'Introduction',
-        description: <>Selene is a Jakarta-based design engineer with a passion for transforming complex challenges into simple, elegant design solutions. Her work spans digital interfaces, interactive experiences, and the convergence of design and technology.</>
+        description: <>Elijah is a New York-based software engineer with a passion for transforming complex challenges into simple, elegant technical solutions. His work spans AI, software development, and the convergence of business and technology.</>
     },
-    work: {
-        display: true, // set to false to hide this section
-        title: 'Work Experience',
-        experiences: [
+    
+        work: {
+          display: true,
+          title: "Work Experience",
+          experiences: [
             {
-                company: 'FLY',
-                timeframe: '2022 - Present',
-                role: 'Senior Design Engineer',
-                achievements: [
-                    <>Redesigned the UI/UX for the FLY platform, resulting in a 20% increase in user engagement and 30% faster load times.</>,
-                    <>Spearheaded the integration of AI tools into design workflows, enabling designers to iterate 50% faster.</>
-                ],
-                images: [ // optional: leave the array empty if you don't want to display images
-                    {
-                        src: '/images/projects/project-01/cover-01.jpg',
-                        alt: 'Once UI Project',
-                        width: 16,
-                        height: 9
-                    }
-                ]
+              company: "Cyborg Mobile",
+              timeframe: "April 2024 – Present",
+              role: "Software Engineer Intern",
+              achievements: [
+                "Enhanced application and user engagement by developing a Chatbot LLM with React, TypeScript, and Node.js, utilizing the OpenAI Assistants API.",
+                "Scaled backend capabilities by designing RESTful APIs and integrating Firebase, facilitating data storage and retrieval for over 80 students.",
+                "Collaborated closely with the head of engineering to follow best practices in software development, resulting in a high-quality application.",
+                "Fine-tuned OpenAI's gpt-4o combined with RAG for improved results on a grant-writing assistant."
+              ],
+              images: []
             },
             {
-                company: 'Creativ3',
-                timeframe: '2018 - 2022',
-                role: 'Lead Designer',
-                achievements: [
-                    <>Developed a design system that unified the brand across multiple platforms, improving design consistency by 40%.</>,
-                    <>Led a cross-functional team to launch a new product line, contributing to a 15% increase in overall company revenue.</>
-                ],
-                images: [ ]
-            }
-        ]
-    },
-    studies: {
-        display: true, // set to false to hide this section
-        title: 'Studies',
-        institutions: [
-            {
-                name: 'University of Jakarta',
-                description: <>Studied software engineering.</>,
+              company: "Microsoft",
+              timeframe: "May 2023 – August 2023",
+              role: "Software Engineer Intern, IC3-AI",
+              achievements: [
+                "Improved bandwidth estimation model's real-time detection accuracy by 100%, optimizing diagnostics using C++.",
+                "Reduced audio score estimation time by 68% in Microsoft Teams, impacting 1M+ calls, through the integration of a real-time audio MOS machine learning model with C++, Python.",
+                "Collaborated with 5+ engineers from different teams to complete tasks in an effective manner."
+              ],
+              images: []
             },
             {
-                name: 'Build the Future',
-                description: <>Studied online marketing and personal branding.</>,
-            }
-        ]
-    },
-    technical: {
-        display: true, // set to false to hide this section
-        title: 'Technical skills',
-        skills: [
-            {
-                title: 'Figma',
-                description: <>Able to prototype in Figma with Once UI with unnatural speed.</>,
-                images: [
-                    {
-                        src: '/images/projects/project-01/cover-02.jpg',
-                        alt: 'Project image',
-                        width: 16,
-                        height: 9
-                    },
-                    {
-                        src: '/images/projects/project-01/cover-03.jpg',
-                        alt: 'Project image',
-                        width: 16,
-                        height: 9
-                    },
-                ]
+              company: "Soca Islands",
+              timeframe: "March 2023 – April 2023",
+              role: "Software Engineer (Freelance)",
+              achievements: [
+                "Streamlined checkout process on a client website, reducing checkout time by 33% through the implementation of filtering and recently viewed features using VueJS, TypeScript, HTML, and CSS.",
+                "Enhanced product inventory management by developing a CRUD API for Firebase Firestore integration."
+              ],
+              images: []
             },
             {
-                title: 'Next.js',
-                description: <>Building next gen apps with Next.js + Once UI + Supabase.</>,
-                images: [
-                    {
-                        src: '/images/projects/project-01/cover-04.jpg',
-                        alt: 'Project image',
-                        width: 16,
-                        height: 9
-                    },
-                ]
+              company: "Microsoft (Cyborg Mobile)",
+              timeframe: "June 2022 – August 2022",
+              role: "New Technologist Intern",
+              achievements: [
+                "Developed an MVP for a web app providing relatable online learning for underprivileged adults with a team of 4 other interns.",
+                "Utilized React, Git, JavaScript, HTML, CSS to add and improve 3 frontend features.",
+                "Integrated secure user authentication with Firebase Cloud."
+              ],
+              images: []
             }
-        ]
-    }
+          ]
+        },
+        studies: {
+          display: true,
+          title: "Education",
+          institutions: [
+            {
+              name: "Stony Brook University",
+              description: "Bachelor of Engineering in Computer Engineering. Relevant courses: Computer Vision, Operating Systems, Machine Learning Systems, Mobile Cloud Computing."
+            },
+            {
+                name: "Certifications",
+                description: "Enhance Text Generation with RAG, LangChain, and Vertex AI; Generative AI with Large Language Models."
+            }
+          ]
+        },
+        technical: {
+          display: true,
+          title: "Technical Skills",
+          skills: [
+            {
+              title: "Programming Languages",
+              description: "Python, C/C++, JavaScript, Java, HTML, CSS, TypeScript.",
+              images: []
+            },
+            {
+              title: "Databases/Cloud",
+              description: "Azure, AWS, Google Cloud, Firebase, MongoDB, Jira, GitHub.",
+              images: []
+            },
+            {
+              title: "Frameworks",
+              description: "Pandas, HuggingFace, LangChain, PyTorch, ONNX, React, Vue, Node.",
+              images: []
+            },
+            
+          ]
+        }
+      
+      
 }
 
 const blog = {
     label: 'Blog',
-    title: 'Writing about design and tech...',
-    description: `Read what ${person.name} has been up to recently`
+    title: 'Writing about life and tech...',
+    description: `Read what ${person.name} has been up to recently`,
+    display: false
     // Create new blog posts by adding a new .mdx file to app/blog/posts
     // All posts will be listed on the /blog route
 }
@@ -167,7 +174,7 @@ const blog = {
 const work = {
     label: 'Work',
     title: 'My projects',
-    description: `Design and dev projects by ${person.name}`
+    description: `Dev projects by ${person.name}`
     // Create new project pages by adding a new .mdx file to app/blog/posts
     // All projects will be listed on the /home and /work routes
 }
