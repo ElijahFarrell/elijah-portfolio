@@ -46,6 +46,15 @@ export async function generateMetadata(
 				'max-snippet': -1,
 			},
 		},
+		icons: {
+			icon: '/favicon.ico',
+			shortcut: '/favicon.ico',
+			apple: '/favicon.ico',
+			other: {
+				rel: 'apple-touch-icon-precomposed',
+				url: '/favicon.ico',
+			},
+		},
 	}
 };
 
