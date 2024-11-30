@@ -2,6 +2,8 @@ import "@/once-ui/styles/index.scss";
 import "@/once-ui/tokens/index.scss";
 
 import classNames from 'classnames';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { Footer, Header, RouteGuard } from "@/components";
 import { baseURL, effects, style } from '@/app/resources'
@@ -15,6 +17,7 @@ import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-in
 import { routing } from "@/i18n/routing";
 import { renderContent } from "@/app/resources";
 import { Background, Flex } from "@/once-ui/components";
+
 
 export async function generateMetadata(
 	{ params: { locale }}: { params: { locale: string }}
@@ -141,6 +144,8 @@ export default async function RootLayout({
 						</Flex>
 					</Flex>
 					<Footer/>
+					<Analytics />
+					<SpeedInsights />
 				</Flex>
 			</Flex>
 		</NextIntlClientProvider>
