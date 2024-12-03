@@ -39,7 +39,7 @@ const social = [
     {
         name: 'Email',
         icon: 'email',
-        link: 'elijahf7302@gmail.com',
+        link: 'mailto:elijah.farrell.work@gmail.com',
     },
 ]
 
@@ -64,7 +64,7 @@ const about = {
     },
     calendar: {
         display: true,
-        link: 'https://cal.com'
+        link: 'https://cal.com/elijah-farrell'
     },
     intro: {
         display: true,
