@@ -245,6 +245,13 @@ const createI18nContent = (t) => {
             },
         ]
     }
+
+    const services = {
+        label: t("services.label"),
+        title: t("services.title"),
+        description: t("services.description", { name: person.name })
+    }
+
     return {
         person,
         social,
@@ -253,7 +260,8 @@ const createI18nContent = (t) => {
         about,
         blog,
         work,
-        gallery
+        gallery,
+        services
     }
 };
 

@@ -191,13 +191,6 @@ const work = {
     // All projects will be listed on the /home and /work routes
 }
 
-const services = {
-  label: 'Services',
-  title: 'My Services',
-  description: `Professional services offered by ${person.name}`,
-  display: true
-}
-
 const gallery = {
     label: 'Gallery',
     title: 'My photo gallery',
@@ -275,6 +268,12 @@ const gallery = {
             orientation: 'horizontal'
         },
     ]
+}
+
+const services = {
+  label: 'Services',
+  title: 'My Services',
+  description: `Professional services offered by ${person.name}`,
 }
 
 
