@@ -1,4 +1,4 @@
-const baseURL = 'demo.magic-portfolio.com'
+const baseURL = 'elijahvfg.com'
 
 // Enable localization
 const i18n = false;
@@ -15,6 +15,7 @@ const routes = {
     '/work':    true,
     '/blog':    false,
     '/gallery': false,
+    '/services': true,
 }
 
 // Enable password protection on selected routes

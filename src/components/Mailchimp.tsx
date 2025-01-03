@@ -4,6 +4,7 @@ import { mailchimp } from '@/app/resources'
 import { Button, Flex, Heading, Input, Text, Background } from '@/once-ui/components';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { BeehiivClient } from '@beehiiv/sdk';
 
 
 function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
@@ -48,6 +49,36 @@ export const Mailchimp = (
             setError('');
         }
     };
+    const subscribe = async () => {
+        if (!validateEmail(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+
+        try {
+            const client = new BeehiivClient({
+                token: process.env.BEEHIIV_API_KEY as string
+            });
+            const response = await client.subscriptions.create( process.env.NEXT_PUBLIC_BEEHIIV_PUBLICATION_ID as string,{
+                email: email,
+                utmSource: 'website',
+                utmMedium: 'organic'
+            });
+                   
+
+            if (response.data.status !== 'active') {
+                throw new Error('Subscription failed');
+            }
+
+            // Clear the input and show success
+            setEmail('');
+            setError('');
+            alert('Successfully subscribed!'); // You might want to replace this with a better UI feedback
+        } catch (err) {
+            setError('Failed to subscribe. Please try again.');
+            console.error('Subscription error:', err);
+        }
+    };
 
     const debouncedHandleChange = debounce(handleChange, 2000);
 
@@ -62,7 +93,7 @@ export const Mailchimp = (
         <Flex
             style={{overflow: 'hidden'}}
             position="relative"
-            fillWidth padding="xl"  radius="l" marginBottom="m"
+            fillWidth padding="xl" radius="l" marginBottom="m"
             direction="column" alignItems="center" align="center"
             background="surface" border="neutral-medium" borderStyle="solid-1">
             <Background
@@ -86,59 +117,25 @@ export const Mailchimp = (
                 onBackground="neutral-medium">
                 {newsletter.description}
             </Text>
-            <form
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center'
-                }}
-                action={mailchimp.action}
-                method="post"
-                id="mc-embedded-subscribe-form"
-                name="mc-embedded-subscribe-form">
-                <Flex id="mc_embed_signup_scroll"
-                    fillWidth maxWidth={24} gap="8">
-                    <Input
-                        formNoValidate
-                        labelAsPlaceholder
-                        id="mce-EMAIL"
-                        name="EMAIL"
-                        type="email"
-                        label="Email"
-                        required
-                        onChange={(e) => {
-                            if (error) {
-                                handleChange(e);
-                            } else {
-                                debouncedHandleChange(e);
-                            }
-                        }}
-                        onBlur={handleBlur}
-                        error={error}/>
-                    <div style={{display: 'none'}}>
-                        <input type="checkbox" readOnly name="group[3492][1]" id="mce-group[3492]-3492-0" value="" checked/>
-                    </div>
-                    <div id="mce-responses" className="clearfalse">
-                        <div className="response" id="mce-error-response" style={{display: 'none'}}></div>
-                        <div className="response" id="mce-success-response" style={{display: 'none'}}></div>
-                    </div>
-                    <div aria-hidden="true" style={{position: 'absolute', left: '-5000px'}}>
-                        <input type="text" readOnly name="b_c1a5a210340eb6c7bff33b2ba_0462d244aa" tabIndex={-1} value=""/>
-                    </div>
-                    <div className="clear">
-                        <Flex
-                            height="48" alignItems="center">
-                            <Button
-                                id="mc-embedded-subscribe"
-                                value="Subscribe"
-                                size="m"
-                                fillWidth>
-                                {t("newsletter.button")}
-                            </Button>
-                        </Flex>
-                    </div>
-                </Flex>
-            </form>
+            <Flex direction="row" gap="xs" style={{ width: 'var(--responsive-width-xs)' }}>
+                <Input
+                    id="email"
+                    label="Enter Your Email"
+                    value={email}
+                    onChange={handleChange}
+                    style={{ flex: 1 }}
+                />
+                <Button
+                    variant="primary"
+                    size="l"
+                    style={{ 
+                        flex: 1,
+                        height: '40px',  // Match input height
+                        marginTop: '3px' // Align with input (accounting for label space)
+                    }}
+                    onClick={subscribe}
+                >Subscribe</Button>
+            </Flex>
         </Flex>
     )
 }

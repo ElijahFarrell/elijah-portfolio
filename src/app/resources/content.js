@@ -48,7 +48,7 @@ const home = {
     title: `${person.name}'s Portfolio`,
     description: `Portfolio website showcasing my work as a ${person.role}`,
     headline: <>Software engineer and builder</>,
-    subline: <>I'm Elijah, a Software engineer at <InlineCode>Cyborg Mobile</InlineCode>, where I craft intuitive<br/> AI solutions and websites. After hours, I build my own projects.</>
+    subline: <>I'm Elijah, a Software engineer at <InlineCode>NextWave Society</InlineCode>, where I craft intuitive<br/> AI solutions and websites. After hours, I build my own projects.</>
 }
 
 const about = {
@@ -77,8 +77,20 @@ const about = {
           title: "Work Experience",
           experiences: [
             {
+              company: "NextWave Society",
+              timeframe: "November 2024 – Present",
+              role: "Software Engineer I",
+              achievements: [
+                "Built a responsive company website with JavaScript, HTML, and CSS, delivered within one month.",
+                "Consulted with PM and Executive Director to gather website requirements and ensure alignment with organizational goals.",
+                "Created a Grant Writing AI Agent using Next.js, Vercel AI SDK, and OpenAI API with fine-tuning and RAG for tailored proposals.",
+                "Communicated with client to ensure satisfaction and effective problem-solving."
+              ],
+              images: []
+            },
+            {
               company: "Cyborg Mobile",
-              timeframe: "April 2024 – Present",
+              timeframe: "April 2024 – November 2024",
               role: "Software Engineer Intern",
               achievements: [
                 "Enhanced application and user engagement by developing a Chatbot LLM with React, TypeScript, and Node.js, utilizing the OpenAI Assistants API.",
@@ -179,6 +191,13 @@ const work = {
     // All projects will be listed on the /home and /work routes
 }
 
+const services = {
+  label: 'Services',
+  title: 'My Services',
+  description: `Professional services offered by ${person.name}`,
+  display: true
+}
+
 const gallery = {
     label: 'Gallery',
     title: 'My photo gallery',
@@ -258,4 +277,6 @@ const gallery = {
     ]
 }
 
-export { person, social, newsletter, home, about, blog, work, gallery };
+
+
+export { person, social, newsletter, home, about, blog, work, gallery, services };

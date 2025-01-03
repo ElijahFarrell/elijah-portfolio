@@ -77,5 +77,10 @@
     },
     "projectCard": {
         "label": "Read Case Study"
+    },
+    "services": {
+        "label": "Services",
+        "title": "My Services",
+        "description": "Professional services offered including AI Automation and Full-Stack Development"
     }
 }

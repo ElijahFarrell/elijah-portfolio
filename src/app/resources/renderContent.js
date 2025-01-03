@@ -1,4 +1,4 @@
-import { person, newsletter, social, home, about, blog, work, gallery } from './content';
+import { person, newsletter, social, home, about, blog, work, gallery, services } from './content';
 import { createI18nContent } from './content-i18n';
 import { i18n } from './config';
 
@@ -14,7 +14,8 @@ const renderContent = (t) => {
             about,
             blog,
             work,
-            gallery
+            gallery,
+            services    
         }
     }
 };

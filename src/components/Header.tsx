@@ -68,7 +68,7 @@ export const Header = () => {
     }
 
     const t = useTranslations();
-    const { person, home, about, blog, work, gallery } = renderContent(t);
+    const { person, home, about, blog, work, gallery, services } = renderContent(t);
 
     return (
         <>
@@ -139,6 +139,14 @@ export const Header = () => {
                                     href={`/${params?.locale}/gallery`}
                                     selected={pathname.startsWith('/gallery')}>
                                     <Flex paddingX="2" hide="s">{gallery.label}</Flex>
+                                </ToggleButton>
+                            )}
+                            { routes['/services'] && (
+                                <ToggleButton
+                                    prefixIcon="services"
+                                    href={`/${params?.locale}/services`}
+                                    selected={pathname.startsWith('/services')}>
+                                    <Flex paddingX="2" hide="s">{services.label}</Flex>
                                 </ToggleButton>
                             )}
                         </Flex>
