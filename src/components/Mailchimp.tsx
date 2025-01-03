@@ -56,18 +56,18 @@ export const Mailchimp = (
         }
 
         try {
-            const client = new BeehiivClient({
-                token: process.env.BEEHIIV_API_KEY as string
+            const response = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
             });
-            const response = await client.subscriptions.create( process.env.NEXT_PUBLIC_BEEHIIV_PUBLICATION_ID as string,{
-                email: email,
-                utmSource: 'website',
-                utmMedium: 'organic'
-            });
-                   
 
-            if (response.data.status !== 'active') {
-                throw new Error('Subscription failed');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to subscribe');
             }
 
             // Clear the input and show success
