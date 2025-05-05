@@ -47,8 +47,8 @@ const home = {
     label: 'Home',
     title: `${person.name}'s Portfolio`,
     description: `Portfolio website showcasing my work as a ${person.role}`,
-    headline: <>Software engineer and builder</>,
-    subline: <>I'm Elijah, a Software engineer at <InlineCode>NextWave Society</InlineCode>, where I craft intuitive<br/> AI solutions and websites. After hours, I build my own projects.</>
+    headline: <>Software Engineer and AI Builder</>,
+    subline: <>I'm Elijah, a Software Engineer at <InlineCode>Amazon</InlineCode>, where I craft intuitive<br/> AI solutions and websites. After hours, I build my own projects.</>
 }
 
 const about = {
@@ -77,8 +77,26 @@ const about = {
           title: "Work Experience",
           experiences: [
             {
+              company: "Amazon",
+              timeframe: "April 2025 – Present",
+              role: "Software Engineer",
+              achievements: [
+              ],
+              images: []
+            },
+            {
+              company: "Zebra Technologies",
+              timeframe: "March 2025 – April 2025",
+              role: "Software Engineer",
+              achievements: [
+                "Contributed to image product enrollment leveraging machine learning techniques.",
+                "Utilized Python and implemented various clustering algorithms including K-Means, DBSCAN, and HDBSCAN.",
+              ],
+              images: []
+            },
+            {
               company: "NextWave Society",
-              timeframe: "November 2024 – Present",
+              timeframe: "November 2024 – March 2025",
               role: "Software Engineer I",
               achievements: [
                 "Built a responsive company website with JavaScript, HTML, and CSS, delivered within one month.",
