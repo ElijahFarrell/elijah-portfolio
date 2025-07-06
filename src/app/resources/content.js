@@ -64,7 +64,7 @@ const about = {
     },
     calendar: {
         display: true,
-        link: 'https://cal.com/elijah-farrell'
+        link: 'https://cal.com/shilohai/secret'
     },
     intro: {
         display: true,
