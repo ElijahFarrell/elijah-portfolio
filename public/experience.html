@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experience – Elijah Farrell</title>
+  <meta name="description" content="Professional experience of Elijah Farrell, software engineer at Amazon: backend services, React frontends, and applied AI.">
+  <link rel="canonical" href="https://elijahvfg.com/experience">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="stylesheet" href="/styles.css">
+  <meta name="theme-color" content="#eeeeee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3d4340" media="(prefers-color-scheme: dark)">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://elijahvfg.com/experience">
+  <meta property="og:site_name" content="Elijah Farrell">
+  <meta property="og:title" content="Experience – Elijah Farrell">
+  <meta property="og:description" content="Software engineer at Amazon. Previously Zebra Technologies, NextWave Society, and Microsoft.">
+  <meta property="og:image" content="https://elijahvfg.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Elijah Farrell, software engineer: backend, React, applied AI">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+  <div class="page">
+    <a class="crumb" href="/"><span aria-hidden="true">←</span> Elijah Farrell</a>
+
+    <header class="intro">
+      <h1>Experience</h1>
+      <p>Full-stack software engineer with about 3 years building production, customer-facing software across backend services, React frontends, and applied AI.</p>
+      <p class="dim"><a href="/resume.pdf" download>Download resume (PDF)</a></p>
+    </header>
+
+    <main>
+      <section aria-labelledby="work">
+        <h2 id="work">Work</h2>
+
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Amazon</h3>
+            <p class="entry-meta"><time datetime="2025-04">Apr 2025</time> – Present</p>
+          </div>
+          <p class="role">Software Development Engineer, Capital Systems · Arlington, VA</p>
+          <p>Java microservices and TypeScript/React micro-frontends for the platform that manages construction contracts, changes, budgets, and contractor payments on Amazon real estate projects ($1.3B+ in spend). Built features touching ~$500M in contract value; regularly review code and mentor engineers.</p>
+          <ul>
+            <li>Built an LLM pipeline (Bedrock + OpenSearch RAG) that converts vendor line-item documents into the platform’s native format for every contract: from ~3 hours to under 5 minutes, 95% accuracy, $75M+ in month one.</li>
+            <li>Replaced a slow chain of frontend calls with one Java API that turns a proposed contract change into a submitted change order, checking authorization at each approval step, with idempotent retries that never create duplicates.</li>
+            <li>Owned the design and full-stack build of in-place editing for contracts under approval, so they can be fixed without restarting approvals, with saves authorized against the stored status instead of client input.</li>
+            <li>Built the backend for importing contract-change documents so each line records its change rather than its new total; deterministic matching skips the LLM for most lines and gives identical results every run.</li>
+            <li>Designed and built a Python LLM error-explainer API and a shared TypeScript/React error-message component used by 3 teams and 10+ services.</li>
+            <li>Built the team’s AI developer tools: an on-call assistant on Kiro CLI with custom MCP servers that helps find root causes (20+ engineering and product adopters, org hackathon win), plus 6+ shared agent skills.</li>
+            <li>As on-call engineer, wrote root-cause analyses and fixes for ~15 production issues, including high-severity incidents.</li>
+            <li>Designed a Step Functions workflow that auto-closes project budgets once work ends, recovering ~$50M in capital.</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Zebra Technologies</h3>
+            <p class="entry-meta"><time datetime="2025-02">Feb 2025</time> – <time datetime="2025-04">Apr 2025</time></p>
+          </div>
+          <p class="role">Software Engineer · Hybrid, Holtsville, NY</p>
+          <ul>
+            <li>Built a Python and TensorFlow pipeline that groups products detected in store-shelf images (k-means, cosine similarity, Zebra’s shelf-trained models) to flag items placed on the wrong shelf.</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Cyborg Mobile / NextWave Society</h3>
+            <p class="entry-meta"><time datetime="2024-04">Apr 2024</time> – <time datetime="2025-02">Feb 2025</time></p>
+          </div>
+          <p class="role">Software Engineer I · Remote</p>
+          <p>Intern at Cyborg Mobile (Apr–Nov 2024), then Software Engineer I at its sister nonprofit NextWave Society (same CEO).</p>
+          <ul>
+            <li>Built a grant-writing AI agent with RAG (Next.js, Vercel AI SDK, OpenAI API) that cut writing time by 10+ hours per submission and raised submission velocity 25%+.</li>
+            <li>Built and deployed a chatbot for 80 users with React, TypeScript, Node.js, and the OpenAI Assistants API, backed by REST APIs and Firebase.</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Microsoft</h3>
+            <p class="entry-meta"><time datetime="2023-05">May 2023</time> – <time datetime="2023-08">Aug 2023</time></p>
+          </div>
+          <p class="role">Software Engineer Intern, IC3-AI · Redmond, WA</p>
+          <ul>
+            <li>Integrated a live call audio predictor model into Microsoft Teams.</li>
+            <li>Cut processing time 68% for the model that scores Teams call audio quality (MOS) for 1M+ users; built real-time ML pipelines in Python and C++.</li>
+            <li>Improved accuracy 100% for a real-time bandwidth estimation model in C++ that helps diagnose Teams call quality.</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Microsoft</h3>
+            <p class="entry-meta"><time datetime="2022-06">Jun 2022</time> – <time datetime="2022-08">Aug 2022</time></p>
+          </div>
+          <p class="role">New Technologist Intern · Remote</p>
+          <ul>
+            <li>Selected for a 7-week innovation academy in partnership with Microsoft.</li>
+            <li>Built a React MVP web app for underprivileged adult learners, with OAuth sign-in through Firebase.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section aria-labelledby="skills">
+        <h2 id="skills">Skills</h2>
+        <dl class="rows">
+          <div>
+            <dt>Languages</dt>
+            <dd>Java, Python, TypeScript, JavaScript, SQL, C++</dd>
+          </div>
+          <div>
+            <dt>Backend &amp; Cloud</dt>
+            <dd>Java microservices, REST APIs, Node.js, AWS (Lambda, Step Functions, DynamoDB, S3)</dd>
+          </div>
+          <div>
+            <dt>Frontend &amp; AI</dt>
+            <dd>React, Next.js, RAG, Bedrock, OpenSearch, MCP servers, agent skills, Mastra, TensorFlow</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section aria-labelledby="education">
+        <h2 id="education">Education</h2>
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Stony Brook University</h3>
+            <p class="entry-meta"><time datetime="2024-05">May 2024</time></p>
+          </div>
+          <p class="role">B.E., Computer Engineering</p>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

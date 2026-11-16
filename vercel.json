@@ -4,6 +4,7 @@
   "installCommand": "",
   "buildCommand": "",
   "outputDirectory": "public",
+  "cleanUrls": true,
   "redirects": [
     {
       "source": "/:section(en|about|work|services|blog|gallery)/:rest*",

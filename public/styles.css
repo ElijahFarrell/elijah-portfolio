@@ -129,11 +129,14 @@ time {
   padding: clamp(3.5rem, 14vh, 8rem) var(--gutter) var(--space-xxl);
 }
 
-/* Back link for subpages, e.g. <a class="crumb" href="/">Elijah Farrell</a> */
+/* Back link on subpages: <a class="crumb" href="/">… */
 .crumb {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   margin-bottom: var(--space-xl);
   color: var(--dim);
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
@@ -141,19 +144,26 @@ time {
   color: var(--dim);
 }
 
-/* - Intro --------------------------------------------------------- */
+/* - Intro (top of every page) ----------------------------------- */
 
 .intro h1 {
   color: var(--fg);
   font-weight: 500;
 }
 
-.intro .lede {
+.intro h1 + p {
   margin-top: var(--space-lg);
+}
+
+.intro p {
   max-width: 34rem;
 }
 
-.intro .lede + p {
+.intro p + p {
+  margin-top: var(--space);
+}
+
+.intro .dim {
   margin-top: var(--space-xs);
 }
 
@@ -186,20 +196,38 @@ time {
   fill: currentColor;
 }
 
-.social .text-link {
-  display: inline-flex;
-  width: auto;
-  height: 2rem;
-  margin-left: var(--space-sm);
-  padding: 0 var(--space-xs);
-  font-size: var(--text-sm);
-  text-decoration: underline;
-  text-decoration-color: var(--faint);
+/* - Page index (home) ------------------------------------------- */
+
+.index {
+  margin-top: var(--space-xl);
+  padding: 0;
+  list-style: none;
 }
 
-.social .text-link:hover {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
+.index li + li {
+  margin-top: var(--space);
+}
+
+.index a {
+  color: var(--fg);
+}
+
+.index p {
+  color: var(--dim);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+/* Small arrow after links that leave the site */
+.out {
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-left: 0.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  color: var(--faint);
+  vertical-align: 0.05em;
 }
 
 /* - Sections ------------------------------------------------------ */
@@ -234,7 +262,7 @@ section > h2 {
   gap: 0 var(--space);
 }
 
-.entry h3 {
+.entry :is(h2, h3) {
   color: var(--fg);
   font-weight: 500;
 }
@@ -302,7 +330,11 @@ section > h2 {
   }
 
   .page > :nth-child(2) {
-    animation-delay: 80ms;
+    animation-delay: 60ms;
+  }
+
+  .page > :nth-child(3) {
+    animation-delay: 120ms;
   }
 
   @keyframes enter {
