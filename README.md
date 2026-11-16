@@ -7,7 +7,8 @@ public/
   index.html       home: intro, social links, links to the other pages
   experience.html  work history, skills, education (served at /experience)
   projects.html    personal projects with code and live links (served at /projects)
-  styles.css       shared styles for every page (light/dark follows the OS setting)
+  styles.css       shared styles for every page
+  theme.js         dark/light toggle; the choice is saved in localStorage
   resume.pdf       public resume, phone number removed
   og.png           1200x630 link-preview image
   favicon.ico
@@ -18,12 +19,12 @@ vercel.json        static deploy config, clean URLs, redirects from the old site
 
 Edit the HTML file for the page. When the resume changes, replace `public/resume.pdf` with a copy that has no phone number.
 
-Colors, type sizes, and spacing are CSS variables at the top of `public/styles.css`; the dark palette overrides them in the `prefers-color-scheme: dark` block.
+Colors, type sizes, and spacing are CSS variables at the top of `public/styles.css`. Dark is the default; the `[data-theme="light"]` block overrides the colors for light mode. A small inline script in each page's `<head>` applies a saved choice before first paint, and `theme.js` runs the toggle.
 
 ## Add a page
 
 1. Copy `public/projects.html` to a new file such as `public/writing.html` and update the title, description, canonical, and `og:` tags. `cleanUrls` in `vercel.json` serves it at `/writing`.
-2. Keep the `<div class="page">` wrapper and the `.crumb` back link, then reuse `.intro`, `section > h2`, `.entry`, `.entry-head`, `.entry-meta`, `.role`, and `.rows` for content.
+2. Keep the inline theme script in `<head>`, the `<div class="page">` wrapper, and the `.topbar` header (back link and theme toggle). Reuse `.intro`, `section > h2`, and the card grid (`ul.cards` with `.card` items; add `stack-sm` to drop to one column on phones, `.wide` on an item to span the row).
 3. Link it from the list on `public/index.html`.
 4. `vercel.json` redirects `/about/*` and `/work/*` (old site routes) to `/`. Remove a route from that list before publishing a page at that path.
 

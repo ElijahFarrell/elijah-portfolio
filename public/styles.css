@@ -1,20 +1,24 @@
 /*
   Shared stylesheet for every page on elijahvfg.com.
   Layout follows a narrow single column; colors come from Frank Chimero's
-  palette (light: #eee paper with sage accent, dark: his #3d4340 green-grey).
+  palette (dark: his #3d4340 green-grey, light: #eee paper with sage accent).
+  Dark is the default. theme.js sets data-theme="light" when a visitor
+  picks it, and the inline script in each <head> restores it before paint.
 */
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --bg: #eeeeee;
-  --fg: #2f3432;
-  --text: #2f3432;
-  --dim: #626b67; /* Frank's #828b87, darkened to pass AA on --bg */
-  --faint: #828b87;
-  --border: #d0d6d4;
-  --accent: #536e62; /* Frank's #5e786d, darkened to pass AA on --bg */
-  --selection: #d0d6d4;
+  --bg: #3d4340;
+  --fg: #eeeeee;
+  --text: #dcdfdd;
+  --dim: #b0bab5; /* Frank's #717d78, lightened to pass AA on --bg and --card */
+  --faint: #717d78;
+  --border: #4f5753;
+  --border-strong: #69736e;
+  --card: #434a46;
+  --accent: #b4cbc0;
+  --selection: #232927;
 
   --font-sans: "Inter", "Inter var", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --text-base: 0.9375rem; /* 15px */
@@ -22,8 +26,10 @@
   --leading: 1.75;
   --leading-sm: 1.6;
 
-  --content-width: 40rem;
+  --content-width: 46rem;
+  --prose-width: 36rem;
   --gutter: 1.25rem;
+  --radius: 10px;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space: 1rem;
@@ -35,19 +41,19 @@
   --fast: 150ms var(--ease);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+:root[data-theme="light"] {
+  color-scheme: light;
 
-    --bg: #3d4340;
-    --fg: #eeeeee;
-    --text: #dcdfdd;
-    --dim: #aab4af; /* Frank's #717d78, lightened to pass AA on --bg */
-    --faint: #717d78;
-    --border: #4f5753;
-    --accent: #b4cbc0;
-    --selection: #232927;
-  }
+  --bg: #eeeeee;
+  --fg: #2f3432;
+  --text: #2f3432;
+  --dim: #626b67; /* Frank's #828b87, darkened to pass AA on --bg and --card */
+  --faint: #828b87;
+  --border: #d0d6d4;
+  --border-strong: #aab3af;
+  --card: #f6f6f6;
+  --accent: #536e62; /* Frank's #5e786d, darkened to pass AA */
+  --selection: #d0d6d4;
 }
 
 /* - Foundations ------------------------------------------------- */
@@ -111,7 +117,7 @@ a:hover {
   text-decoration-color: var(--accent);
 }
 
-a:focus-visible {
+:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
@@ -121,42 +127,133 @@ time {
   font-variant-numeric: tabular-nums;
 }
 
+.dim {
+  color: var(--dim);
+}
+
+/* Small arrow after links that leave the site */
+.out {
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-left: 0.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  color: var(--faint);
+  vertical-align: 0.05em;
+}
+
 /* - Page shell ---------------------------------------------------- */
 
 .page {
   max-width: calc(var(--content-width) + var(--gutter) * 2);
   margin: 0 auto;
-  padding: clamp(3.5rem, 14vh, 8rem) var(--gutter) var(--space-xxl);
+  padding: clamp(3rem, 12vh, 7rem) var(--gutter) var(--space-xxl);
 }
 
-/* Back link on subpages: <a class="crumb" href="/">… */
+/* Name or back link on the left, theme toggle on the right */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space);
+  margin-bottom: var(--space-lg);
+}
+
+.topbar h1 {
+  color: var(--fg);
+  font-weight: 500;
+}
+
 .crumb {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  margin-bottom: var(--space-xl);
   color: var(--dim);
   font-size: var(--text-sm);
   text-decoration: none;
 }
 
-.dim {
+/* - Theme toggle -------------------------------------------------- */
+
+.theme-toggle {
+  position: relative;
+  flex: none;
+  width: 3rem;
+  height: 1.625rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
   color: var(--dim);
+  cursor: pointer;
+  transition: border-color var(--fast);
 }
 
-/* - Intro (top of every page) ----------------------------------- */
+.theme-toggle:hover {
+  border-color: var(--border-strong);
+}
 
-.intro h1 {
+.theme-toggle:focus-visible {
+  border-radius: 999px;
+}
+
+.theme-toggle .knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--bg);
   color: var(--fg);
-  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--border);
+  transform: translateX(1.375rem);
+  transition: transform 200ms var(--ease);
 }
 
-.intro h1 + p {
-  margin-top: var(--space-lg);
+.theme-toggle svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
 }
+
+.theme-toggle .sun {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .knob {
+  transform: none;
+}
+
+[data-theme="light"] .theme-toggle .sun {
+  display: block;
+}
+
+[data-theme="light"] .theme-toggle .moon {
+  display: none;
+}
+
+/* Without JavaScript the toggle can't work, so hide it */
+:root:not([data-theme]) .theme-toggle {
+  display: none;
+}
+
+/* - Intro --------------------------------------------------------- */
 
 .intro p {
-  max-width: 34rem;
+  max-width: var(--prose-width);
+}
+
+.intro h1 {
+  margin-bottom: var(--space);
+  color: var(--fg);
+  font-weight: 500;
 }
 
 .intro p + p {
@@ -196,63 +293,107 @@ time {
   fill: currentColor;
 }
 
-/* - Page index (home) ------------------------------------------- */
-
-.index {
-  margin-top: var(--space-xl);
-  padding: 0;
-  list-style: none;
-}
-
-.index li + li {
-  margin-top: var(--space);
-}
-
-.index a {
-  color: var(--fg);
-}
-
-.index p {
-  color: var(--dim);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-}
-
-/* Small arrow after links that leave the site */
-.out {
-  width: 0.625rem;
-  height: 0.625rem;
-  margin-left: 0.25rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  color: var(--faint);
-  vertical-align: 0.05em;
-}
-
 /* - Sections ------------------------------------------------------ */
 
-section {
+main {
+  margin-top: var(--space-xl);
+}
+
+section + section {
   margin-top: var(--space-xxl);
 }
 
 section > h2 {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space);
   color: var(--dim);
   font-size: var(--text-sm);
   font-weight: 400;
   line-height: var(--leading-sm);
 }
 
-/* - Entries (experience, projects, education) --------------------- */
+/* - Cards --------------------------------------------------------- */
 
-.entry + .entry {
-  margin-top: var(--space-xl);
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
 }
 
-.entry > * + * {
+.cards.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cards > .wide {
+  grid-column: 1 / -1;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem 1.125rem 1.125rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  transition: border-color var(--fast);
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+.card > * + * {
   margin-top: var(--space-sm);
 }
+
+/* Whole card is the link (home page) */
+a.card {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.card:hover .card-title {
+  color: var(--accent);
+}
+
+a.card:focus-visible {
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+.card-title {
+  color: var(--fg);
+  font-weight: 500;
+  transition: color var(--fast);
+}
+
+.card .dim,
+.card .role,
+.card .entry-meta {
+  color: var(--dim);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+/* A card's links sit on its bottom edge */
+.card .card-links {
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  color: var(--dim);
+  font-size: var(--text-sm);
+}
+
+.card-links a {
+  color: var(--dim);
+}
+
+.card-links a:hover {
+  color: var(--accent);
+}
+
+/* - Entries (experience, education) ------------------------------- */
 
 .entry-head {
   display: flex;
@@ -262,32 +403,13 @@ section > h2 {
   gap: 0 var(--space);
 }
 
-.entry :is(h2, h3) {
-  color: var(--fg);
-  font-weight: 500;
-}
-
-.entry-meta,
-.role {
-  color: var(--dim);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-}
-
-.entry-head + .role {
+.card .entry-head + .role {
   margin-top: 0;
-}
-
-.entry-meta a {
-  color: var(--dim);
-}
-
-.entry-meta a:hover {
-  color: var(--accent);
 }
 
 .entry ul {
   padding-left: 1rem;
+  list-style: disc;
 }
 
 .entry li {
@@ -300,26 +422,6 @@ section > h2 {
 
 .entry li + li {
   margin-top: var(--space-sm);
-}
-
-/* - Definition rows (skills) ------------------------------------- */
-
-.rows {
-  border-top: 1px solid var(--border);
-}
-
-.rows > div {
-  display: grid;
-  grid-template-columns: 9rem 1fr;
-  gap: var(--space-xs) var(--space);
-  padding: 0.625rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.rows dt {
-  color: var(--dim);
-  font-size: var(--text-sm);
-  line-height: inherit;
 }
 
 /* - Entrance ------------------------------------------------------ */
@@ -346,20 +448,26 @@ section > h2 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  a {
+  a,
+  .card,
+  .card-title,
+  .theme-toggle,
+  .theme-toggle .knob {
     transition: none;
   }
 }
 
 /* - Small screens ------------------------------------------------- */
 
-@media (max-width: 34rem) {
-  .rows > div {
+@media (max-width: 40rem) {
+  .cards.stack-sm,
+  .cards.three {
     grid-template-columns: 1fr;
-    gap: 0;
   }
+}
 
-  .entry-head {
+@media (max-width: 34rem) {
+  .card .entry-head {
     flex-direction: column;
     gap: 0;
   }
