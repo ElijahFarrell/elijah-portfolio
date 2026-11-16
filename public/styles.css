@@ -1,6 +1,6 @@
 /*
   Shared stylesheet for every page on elijahvfg.com.
-  Layout follows a narrow single column; colors come from Frank Chimero's
+  Layout follows paco.me: a narrow column with labelled grids; colors come from Frank Chimero's
   palette (dark: his #3d4340 green-grey, light: #eee paper with sage accent).
   Dark is the default. theme.js sets data-theme="light" when a visitor
   picks it, and the inline script in each <head> restores it before paint.
@@ -12,11 +12,11 @@
   --bg: #3d4340;
   --fg: #eeeeee;
   --text: #dcdfdd;
-  --dim: #b0bab5; /* Frank's #717d78, lightened to pass AA on --bg and --card */
+  --dim: #b0bab5; /* Frank's #717d78, lightened to pass AA on --bg */
   --faint: #717d78;
   --border: #4f5753;
   --border-strong: #69736e;
-  --card: #434a46;
+  --surface: #434a46;
   --accent: #b4cbc0;
   --selection: #232927;
 
@@ -26,7 +26,7 @@
   --leading: 1.75;
   --leading-sm: 1.6;
 
-  --content-width: 46rem;
+  --content-width: 42rem;
   --prose-width: 36rem;
   --gutter: 1.25rem;
   --radius: 10px;
@@ -47,11 +47,11 @@
   --bg: #eeeeee;
   --fg: #2f3432;
   --text: #2f3432;
-  --dim: #626b67; /* Frank's #828b87, darkened to pass AA on --bg and --card */
+  --dim: #626b67; /* Frank's #828b87, darkened to pass AA on --bg */
   --faint: #828b87;
   --border: #d0d6d4;
   --border-strong: #aab3af;
-  --card: #f6f6f6;
+  --surface: #f6f6f6;
   --accent: #536e62; /* Frank's #5e786d, darkened to pass AA */
   --selection: #d0d6d4;
 }
@@ -89,6 +89,7 @@ body {
 h1,
 h2,
 h3,
+h4,
 p,
 ul,
 dl,
@@ -98,7 +99,8 @@ dd {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-size: inherit;
   line-height: inherit;
 }
@@ -184,7 +186,7 @@ time {
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--card);
+  background: var(--surface);
   color: var(--dim);
   cursor: pointer;
   transition: border-color var(--fast);
@@ -311,85 +313,75 @@ section > h2 {
   line-height: var(--leading-sm);
 }
 
-/* - Cards --------------------------------------------------------- */
+/* - Columns (Paco-style grid) ------------------------------------
+   <div class="columns">
+     <section class="column"><h2 class="label">…</h2><ul class="items">…</ul></section>
+   Each item: a title (usually the link), then muted lines below. */
 
-.cards {
+.columns {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-xl) var(--space-lg);
+  align-items: start;
+}
+
+.columns > .column {
+  margin-top: 0;
+}
+
+.columns.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+}
+
+.label {
+  margin-bottom: var(--space-lg);
+  color: var(--dim);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-sm);
+}
+
+.items {
   padding: 0;
   list-style: none;
 }
 
-.cards.three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.items > li + li {
+  margin-top: var(--space-lg);
 }
 
-.cards > .wide {
-  grid-column: 1 / -1;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 1rem 1.125rem 1.125rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  transition: border-color var(--fast);
-}
-
-.card:hover {
-  border-color: var(--border-strong);
-}
-
-.card > * + * {
-  margin-top: var(--space-sm);
-}
-
-/* Whole card is the link (home page) */
-a.card {
-  color: inherit;
-  text-decoration: none;
-}
-
-a.card:hover .card-title {
-  color: var(--accent);
-}
-
-a.card:focus-visible {
-  outline-offset: 2px;
-  border-radius: var(--radius);
-}
-
-.card-title {
+.item-title {
   color: var(--fg);
-  font-weight: 500;
-  transition: color var(--fast);
+  font-size: inherit;
+  font-weight: 400;
 }
 
-.card .dim,
-.card .role,
-.card .entry-meta {
+.item-title a {
+  color: var(--fg);
+  text-decoration-color: var(--faint);
+}
+
+.item-title a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.item p {
+  color: var(--dim);
+}
+
+.item .meta {
+  margin-top: var(--space-xs);
   color: var(--dim);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
 }
 
-/* A card's links sit on its bottom edge */
-.card .card-links {
-  margin-top: auto;
-  padding-top: var(--space-sm);
-  color: var(--dim);
-  font-size: var(--text-sm);
-}
-
-.card-links a {
+.meta a {
   color: var(--dim);
 }
 
-.card-links a:hover {
+.meta a:hover {
   color: var(--accent);
 }
 
@@ -403,7 +395,23 @@ a.card:focus-visible {
   gap: 0 var(--space);
 }
 
-.card .entry-head + .role {
+.entry > * + * {
+  margin-top: var(--space-sm);
+}
+
+.entry h3 {
+  color: var(--fg);
+  font-weight: 400;
+}
+
+.entry-meta,
+.entry .role {
+  color: var(--dim);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.entry-head + .role {
   margin-top: 0;
 }
 
@@ -449,8 +457,6 @@ a.card:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   a,
-  .card,
-  .card-title,
   .theme-toggle,
   .theme-toggle .knob {
     transition: none;
@@ -460,14 +466,14 @@ a.card:focus-visible {
 /* - Small screens ------------------------------------------------- */
 
 @media (max-width: 40rem) {
-  .cards.stack-sm,
-  .cards.three {
+  .columns,
+  .columns.two {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 34rem) {
-  .card .entry-head {
+  .entry-head {
     flex-direction: column;
     gap: 0;
   }

@@ -24,7 +24,7 @@ Colors, type sizes, and spacing are CSS variables at the top of `public/styles.c
 ## Add a page
 
 1. Copy `public/projects.html` to a new file such as `public/writing.html` and update the title, description, canonical, and `og:` tags. `cleanUrls` in `vercel.json` serves it at `/writing`.
-2. Keep the inline theme script in `<head>`, the `<div class="page">` wrapper, and the `.topbar` header (back link and theme toggle). Reuse `.intro`, `section > h2`, and the card grid (`ul.cards` with `.card` items; add `stack-sm` to drop to one column on phones, `.wide` on an item to span the row).
+2. Keep the inline theme script in `<head>`, the `<div class="page">` wrapper, and the `.topbar` header (back link and theme toggle). Reuse `.intro` for the top of the page and the column grid for lists: `.columns` holds `section.column` blocks, each with an `h2.label` and a `ul.items` of `li.item` (an `.item-title`, usually a link, then muted `p` lines; `.meta` for small print). It's 3 columns on desktop, `.columns.two` for 2, and one column on phones.
 3. Link it from the list on `public/index.html`.
 4. `vercel.json` redirects `/about/*` and `/work/*` (old site routes) to `/`. Remove a route from that list before publishing a page at that path.
 

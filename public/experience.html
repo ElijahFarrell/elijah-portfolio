@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Experience – Elijah Farrell</title>
-  <meta name="description" content="Professional experience of Elijah Farrell, software engineer at Amazon: backend services, React frontends, and applied AI.">
+  <meta name="description" content="Where Elijah Farrell has worked: Amazon, Zebra Technologies, NextWave Society, and Microsoft.">
   <link rel="canonical" href="https://elijahvfg.com/experience">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <script>
@@ -45,125 +45,98 @@
 
     <div class="intro">
       <h1>Experience</h1>
-      <p>Full-stack software engineer with about 3 years building production, customer-facing software across backend services, React frontends, and applied AI.</p>
+      <p>I’m a full-stack engineer, about 3 years into building production software that customers actually use: backend services, React frontends, and applied AI. The short version is on my resume.</p>
       <p class="dim"><a href="/resume.pdf" download>Download resume (PDF)</a></p>
     </div>
 
     <main>
-      <section aria-labelledby="work">
-        <h2 id="work">Work</h2>
-        <ul class="cards stack-sm">
-          <li class="wide">
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Amazon</h3>
-                <p class="entry-meta"><time datetime="2025-04">Apr 2025</time> – Present</p>
-              </div>
-              <p class="role">Software Development Engineer, Capital Systems · Arlington, VA</p>
-              <p>Java microservices and TypeScript/React micro-frontends for the platform that manages construction contracts, changes, budgets, and contractor payments on Amazon real estate projects ($1.3B+ in spend). Built features touching ~$500M in contract value; regularly review code and mentor engineers.</p>
-              <ul>
-                <li>Built an LLM pipeline (Bedrock + OpenSearch RAG) that converts vendor line-item documents into the platform’s native format for every contract: from ~3 hours to under 5 minutes, 95% accuracy, $75M+ in month one.</li>
-                <li>Replaced a slow chain of frontend calls with one Java API that turns a proposed contract change into a submitted change order, checking authorization at each approval step, with idempotent retries that never create duplicates.</li>
-                <li>Owned the design and full-stack build of in-place editing for contracts under approval, so they can be fixed without restarting approvals, with saves authorized against the stored status instead of client input.</li>
-                <li>Built the backend for importing contract-change documents so each line records its change rather than its new total; deterministic matching skips the LLM for most lines and gives identical results every run.</li>
-                <li>Designed and built a Python LLM error-explainer API and a shared TypeScript/React error-message component used by 3 teams and 10+ services.</li>
-                <li>Built the team’s AI developer tools: an on-call assistant on Kiro CLI with custom MCP servers that helps find root causes (20+ engineering and product adopters, org hackathon win), plus 6+ shared agent skills.</li>
-                <li>As on-call engineer, wrote root-cause analyses and fixes for ~15 production issues, including high-severity incidents.</li>
-                <li>Designed a Step Functions workflow that auto-closes project budgets once work ends, recovering ~$50M in capital.</li>
-              </ul>
-            </article>
-          </li>
-          <li>
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Zebra Technologies</h3>
-                <p class="entry-meta"><time datetime="2025-02">Feb 2025</time> – <time datetime="2025-04">Apr 2025</time></p>
-              </div>
-              <p class="role">Software Engineer · Hybrid, Holtsville, NY</p>
-              <ul>
-                <li>Built a Python and TensorFlow pipeline that groups products detected in store-shelf images (k-means, cosine similarity, Zebra’s shelf-trained models) to flag items placed on the wrong shelf.</li>
-              </ul>
-            </article>
-          </li>
-          <li>
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Cyborg Mobile / NextWave Society</h3>
-                <p class="entry-meta"><time datetime="2024-04">Apr 2024</time> – <time datetime="2025-02">Feb 2025</time></p>
-              </div>
-              <p class="role">Software Engineer I · Remote</p>
-              <p>Intern at Cyborg Mobile (Apr–Nov 2024), then Software Engineer I at its sister nonprofit NextWave Society (same CEO).</p>
-              <ul>
-                <li>Built a grant-writing AI agent with RAG (Next.js, Vercel AI SDK, OpenAI API) that cut writing time by 10+ hours per submission and raised submission velocity 25%+.</li>
-                <li>Built and deployed a chatbot for 80 users with React, TypeScript, Node.js, and the OpenAI Assistants API, backed by REST APIs and Firebase.</li>
-              </ul>
-            </article>
-          </li>
-          <li>
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Microsoft</h3>
-                <p class="entry-meta"><time datetime="2023-05">May 2023</time> – <time datetime="2023-08">Aug 2023</time></p>
-              </div>
-              <p class="role">Software Engineer Intern, IC3-AI · Redmond, WA</p>
-              <ul>
-                <li>Integrated a live call audio predictor model into Microsoft Teams.</li>
-                <li>Cut processing time 68% for the model that scores Teams call audio quality (MOS) for 1M+ users; built real-time ML pipelines in Python and C++.</li>
-                <li>Improved accuracy 100% for a real-time bandwidth estimation model in C++ that helps diagnose Teams call quality.</li>
-              </ul>
-            </article>
-          </li>
-          <li>
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Microsoft</h3>
-                <p class="entry-meta"><time datetime="2022-06">Jun 2022</time> – <time datetime="2022-08">Aug 2022</time></p>
-              </div>
-              <p class="role">New Technologist Intern · Remote</p>
-              <ul>
-                <li>Selected for a 7-week innovation academy in partnership with Microsoft.</li>
-                <li>Built a React MVP web app for underprivileged adult learners, with OAuth sign-in through Firebase.</li>
-              </ul>
-            </article>
-          </li>
-        </ul>
+      <section aria-labelledby="amazon">
+        <h2 id="amazon" class="label">Amazon</h2>
+        <article class="entry">
+          <div class="entry-head">
+            <h3>Software Development Engineer</h3>
+            <p class="entry-meta"><time datetime="2025-04">Apr 2025</time> – Present</p>
+          </div>
+          <p class="role">Arlington, VA</p>
+          <p>Java services and TypeScript/React micro-frontends for a finance platform with $1.3B+ in spend. I’ve built features touching ~$500M, and I review code and mentor engineers along the way.</p>
+          <ul>
+            <li>Built an LLM pipeline (Bedrock + OpenSearch RAG) that turns vendor documents into the platform’s native format: from ~3 hours to under 5 minutes, 95% accuracy, $75M+ in month one.</li>
+            <li>Replaced a slow chain of frontend calls with one Java API for submitting changes, with authorization checks at each approval step and idempotent retries that never create duplicates.</li>
+            <li>Owned the design and full-stack build of in-place editing for items under approval, so fixes don’t restart the approval flow.</li>
+            <li>Built a document-import backend where deterministic matching skips the LLM for most lines and gives the same result every run.</li>
+            <li>Designed and built a Python LLM error-explainer API and a shared TypeScript/React error component used by 3 teams and 10+ services.</li>
+            <li>Built the team’s AI developer tools: an on-call assistant on Kiro CLI with custom MCP servers for finding root causes (20+ adopters across engineering and product, org hackathon win), plus 6+ shared agent skills.</li>
+            <li>Wrote root-cause analyses and fixes for ~15 production issues as on-call engineer, including high-severity incidents.</li>
+            <li>Designed a Step Functions workflow that closes out budgets once work ends, recovering ~$50M in capital.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section aria-labelledby="earlier">
+        <h2 id="earlier" class="label">Before Amazon</h2>
+        <div class="columns">
+          <section class="column">
+            <h3 class="label">Zebra Technologies</h3>
+            <ul class="items">
+              <li class="item">
+                <h4 class="item-title">Software Engineer</h4>
+                <p>Built a Python and TensorFlow pipeline that groups products in store-shelf images (k-means, cosine similarity, Zebra’s shelf-trained models) to flag ones on the wrong shelf.</p>
+                <p class="meta"><time datetime="2025-02">Feb</time>–<time datetime="2025-04">Apr 2025</time> · Hybrid, Holtsville, NY</p>
+              </li>
+            </ul>
+          </section>
+          <section class="column">
+            <h3 class="label">NextWave Society</h3>
+            <ul class="items">
+              <li class="item">
+                <h4 class="item-title">Software Engineer I</h4>
+                <p>Built a grant-writing AI agent with RAG that cut 10+ hours per submission and raised submission velocity 25%+, and shipped a chatbot for 80 users on the OpenAI Assistants API.</p>
+                <p class="meta"><time datetime="2024-04">Apr 2024</time> – <time datetime="2025-02">Feb 2025</time> · Remote. Interned at Cyborg Mobile through Nov 2024, then joined NextWave, its sister nonprofit.</p>
+              </li>
+            </ul>
+          </section>
+          <section class="column">
+            <h3 class="label">Microsoft</h3>
+            <ul class="items">
+              <li class="item">
+                <h4 class="item-title">Software Engineer Intern, IC3-AI</h4>
+                <p>Integrated a live call audio predictor into Teams, cut processing time 68% for the call-quality (MOS) model serving 1M+ users, and improved accuracy 100% for a bandwidth estimation model in C++.</p>
+                <p class="meta"><time datetime="2023-05">May</time>–<time datetime="2023-08">Aug 2023</time> · Redmond, WA</p>
+              </li>
+              <li class="item">
+                <h4 class="item-title">New Technologist Intern</h4>
+                <p>Picked for a 7-week innovation academy with Microsoft. Built a React MVP for underprivileged adult learners, with Firebase OAuth sign-in.</p>
+                <p class="meta"><time datetime="2022-06">Jun</time>–<time datetime="2022-08">Aug 2022</time> · Remote</p>
+              </li>
+            </ul>
+          </section>
+        </div>
       </section>
 
       <section aria-labelledby="skills">
-        <h2 id="skills">Skills</h2>
-        <ul class="cards three">
-          <li>
-            <div class="card">
-              <h3 class="card-title">Languages</h3>
-              <p>Java, Python, TypeScript, JavaScript, SQL, C++</p>
-            </div>
-          </li>
-          <li>
-            <div class="card">
-              <h3 class="card-title">Backend &amp; Cloud</h3>
-              <p>Java microservices, REST APIs, Node.js, AWS (Lambda, Step Functions, DynamoDB, S3)</p>
-            </div>
-          </li>
-          <li>
-            <div class="card">
-              <h3 class="card-title">Frontend &amp; AI</h3>
-              <p>React, Next.js, RAG, Bedrock, OpenSearch, MCP servers, agent skills, Mastra, TensorFlow</p>
-            </div>
-          </li>
-        </ul>
+        <h2 id="skills" class="label">Skills</h2>
+        <div class="columns">
+          <section class="column">
+            <h3 class="label">Languages</h3>
+            <p>Java, Python, TypeScript, JavaScript, SQL, C++</p>
+          </section>
+          <section class="column">
+            <h3 class="label">Backend &amp; Cloud</h3>
+            <p>Java microservices, REST APIs, Node.js, AWS (Lambda, Step Functions, DynamoDB, S3)</p>
+          </section>
+          <section class="column">
+            <h3 class="label">Frontend &amp; AI</h3>
+            <p>React, Next.js, RAG, Bedrock, OpenSearch, MCP servers, agent skills, Mastra, TensorFlow</p>
+          </section>
+        </div>
       </section>
 
       <section aria-labelledby="education">
-        <h2 id="education">Education</h2>
-        <ul class="cards">
-          <li class="wide">
-            <article class="card entry">
-              <div class="entry-head">
-                <h3 class="card-title">Stony Brook University</h3>
-                <p class="entry-meta"><time datetime="2024-05">May 2024</time></p>
-              </div>
-              <p class="role">B.E., Computer Engineering</p>
-            </article>
+        <h2 id="education" class="label">Education</h2>
+        <ul class="items">
+          <li class="item">
+            <h3 class="item-title">Stony Brook University</h3>
+            <p class="meta">B.E., Computer Engineering · <time datetime="2024-05">May 2024</time></p>
           </li>
         </ul>
       </section>
