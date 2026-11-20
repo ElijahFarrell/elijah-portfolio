@@ -39,3 +39,7 @@ npx serve public
 ## Deploy
 
 Vercel deploys on push. `vercel.json` sets the framework preset to "Other", skips install and build, serves `public/` as-is, and turns on clean URLs, so the Vercel project settings don't need changes.
+
+## Analytics
+
+Vercel Web Analytics is on (`/_vercel/insights/script.js`). Don't let your own test or screenshot visits to https://elijahvfg.com count: set `localStorage.setItem("va-disable", "true")` on that origin before page scripts run (in Playwright, `context.addInitScript(() => localStorage.setItem("va-disable", "true"))`), or check a local copy (`npx serve public`) instead. In a normal browser, run that line once in the devtools console on elijahvfg.com. `curl` checks don't run the script, so they aren't counted.
