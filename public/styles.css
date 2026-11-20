@@ -129,6 +129,24 @@ time {
   font-variant-numeric: tabular-nums;
 }
 
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+/* Keeps a link's ↗ arrow on the same line as its last word */
+.nobr {
+  white-space: nowrap;
+}
+
 .dim {
   color: var(--dim);
 }
@@ -333,6 +351,37 @@ section > h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* .rows-2: every column's items share the same rows, so the second item
+   in each column starts on the same line even when descriptions differ
+   in length. Each column spans one label row plus two item rows. */
+@media (min-width: 40.0625rem) {
+  @supports (grid-template-rows: subgrid) {
+    .columns.rows-2 {
+      row-gap: var(--space-lg);
+    }
+
+    .columns.rows-2 > .column {
+      display: grid;
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+    }
+
+    .columns.rows-2 .label {
+      margin-bottom: 0;
+    }
+
+    .columns.rows-2 .items {
+      display: grid;
+      grid-row: span 2;
+      grid-template-rows: subgrid;
+    }
+
+    .columns.rows-2 .items > li + li {
+      margin-top: 0;
+    }
+  }
+}
+
 .label {
   margin-bottom: var(--space-lg);
   color: var(--dim);
@@ -415,6 +464,10 @@ section > h2 {
   margin-top: 0;
 }
 
+.entries > .entry + .entry {
+  margin-top: var(--space-xl);
+}
+
 .entry ul {
   padding-left: 1rem;
   list-style: disc;
@@ -430,6 +483,24 @@ section > h2 {
 
 .entry li + li {
   margin-top: var(--space-sm);
+}
+
+/* - Label / value rows (skills) ---------------------------------- */
+
+.rows > div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 var(--space);
+}
+
+.rows > div + div {
+  margin-top: var(--space-sm);
+}
+
+.rows dt {
+  color: var(--dim);
+  font-size: var(--text-sm);
 }
 
 /* - Entrance ------------------------------------------------------ */
@@ -473,6 +544,10 @@ section > h2 {
 }
 
 @media (max-width: 34rem) {
+  .rows > div {
+    grid-template-columns: 1fr;
+  }
+
   .entry-head {
     flex-direction: column;
     gap: 0;
