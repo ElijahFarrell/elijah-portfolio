@@ -1,6 +1,13 @@
 // Server-side settings for the chat, read from environment variables.
 // Every value has a safe default so a missing variable never takes the site down.
 
+function floatFromEnv(name: string, fallback: number, env: NodeJS.ProcessEnv): number {
+  const raw = env[name];
+  if (raw === undefined || raw.trim() === '') return fallback;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
 function intFromEnv(name: string, fallback: number, env: NodeJS.ProcessEnv): number {
   const raw = env[name];
   if (raw === undefined || raw.trim() === '') return fallback;
@@ -24,6 +31,18 @@ export type Config = {
   ragEnabled: boolean;
   embeddingModel: string;
   ragTopK: number;
+  // Limits. Questions per visitor (hashed IP) per sliding window.
+  rateLimitMax: number;
+  rateLimitWindowSeconds: number;
+  // Questions per chat session before "Clear chat" is needed.
+  sessionMaxTurns: number;
+  // Once the day's spend (UTC) reaches this, the chat rests until tomorrow.
+  dailyBudgetUsd: number;
+  // Salt for hashing visitor IPs before they're used as rate-limit keys.
+  ipHashSalt: string;
+  // Cloudflare Turnstile. When the secret is set, each new session must pass a check.
+  turnstileSiteKey: string | undefined;
+  turnstileSecretKey: string | undefined;
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -39,5 +58,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     ragEnabled: env.RAG_ENABLED === 'true',
     embeddingModel: env.EMBEDDING_MODEL || 'openai/text-embedding-3-small',
     ragTopK: Math.max(1, intFromEnv('RAG_TOP_K', 4, env)),
+    rateLimitMax: Math.max(1, intFromEnv('RATE_LIMIT_MAX', 10, env)),
+    rateLimitWindowSeconds: Math.max(1, intFromEnv('RATE_LIMIT_WINDOW_SECONDS', 600, env)),
+    sessionMaxTurns: Math.max(1, intFromEnv('SESSION_MAX_TURNS', 20, env)),
+    dailyBudgetUsd: floatFromEnv('DAILY_BUDGET_USD', 3, env),
+    ipHashSalt: env.IP_HASH_SALT || 'elijahvfg-chat',
+    turnstileSiteKey: env.TURNSTILE_SITE_KEY || undefined,
+    turnstileSecretKey: env.TURNSTILE_SECRET_KEY || undefined,
   };
 }

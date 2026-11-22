@@ -14,6 +14,9 @@ export const ERRORS = {
   Busy: { status: 503, code: 'busy', message: ERROR_MESSAGES.Busy },
   Upstream: { status: 502, code: 'upstream', message: ERROR_MESSAGES.Upstream },
   Aborted: { status: 499, code: 'aborted', message: ERROR_MESSAGES.Aborted },
+  RateLimited: { status: 429, code: 'rate_limited', message: ERROR_MESSAGES.RateLimited },
+  Verify: { status: 403, code: 'verify', message: ERROR_MESSAGES.Verify },
+  SessionLimit: { status: 429, code: 'session_limit', message: ERROR_MESSAGES.SessionLimit },
 } as const satisfies Record<string, ApiError>;
 
 export function tooLong(maxChars: number): ApiError {

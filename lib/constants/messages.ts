@@ -16,4 +16,7 @@ export const ERROR_MESSAGES = {
   Upstream: 'Something went wrong. Please try again.',
   Aborted: 'Request cancelled.',
   CutOff: 'The answer was cut off. Please try again.',
+  RateLimited: "You're asking quickly. Please try again in a few minutes.",
+  Verify: 'Please finish the quick check and try again.',
+  SessionLimit: 'This chat has reached its limit. Clear the chat to start a new one.',
 } as const;

@@ -3,6 +3,7 @@ import type { LanguageModel } from 'ai';
 import { handleChat, chatStatus, type ChatDeps } from '../lib/chat.js';
 import { loadConfig } from '../lib/config.js';
 import { loadHistory, saveExchange } from '../lib/history.js';
+import { ChatLimits, MemoryLimitStore } from '../lib/limits.js';
 import { createTestDb } from './helpers/pg.js';
 import { failingModel, mockModel, readEvents } from './helpers/model.js';
 
@@ -22,10 +23,12 @@ async function setup(model: LanguageModel, env: Record<string, string> = {}) {
   const { db, sql } = await shared;
   await db.exec('truncate chat_messages restart identity');
   const pending: Promise<unknown>[] = [];
+  const config = loadConfig({ CHAT_ENABLED: 'true', ...env });
   const deps: ChatDeps = {
-    config: loadConfig({ CHAT_ENABLED: 'true', ...env }),
+    config,
     sql,
     getModel: () => model,
+    limits: new ChatLimits(new MemoryLimitStore(), config, undefined),
     waitUntil: (p) => void pending.push(p),
     profile: 'Elijah Farrell is a software engineer at Amazon.',
   };
@@ -167,10 +170,14 @@ describe('handleChat', () => {
 
 describe('chatStatus', () => {
   it('reports whether the chat is on, cacheable for a minute', async () => {
-    const res = chatStatus(loadConfig({ CHAT_ENABLED: 'true' }));
-    expect(await res.json()).toEqual({ enabled: true });
+    const config = loadConfig({ CHAT_ENABLED: 'true' });
+    const limits = new ChatLimits(new MemoryLimitStore(), config, undefined);
+    const res = await chatStatus(config, limits);
+    expect(await res.json()).toEqual({ enabled: true, resting: false });
     expect(res.headers.get('cache-control')).toContain('s-maxage=60');
-    expect(await chatStatus(loadConfig({})).json()).toEqual({ enabled: false });
+    expect(await (await chatStatus(loadConfig({}), limits)).json()).toEqual({ enabled: false, resting: false });
+    // No limits store means no chat, even when switched on.
+    expect(await (await chatStatus(config, undefined)).json()).toEqual({ enabled: false, resting: false });
   });
 });
 

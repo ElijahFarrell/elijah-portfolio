@@ -3,7 +3,8 @@ import type { AnthropicLanguageModelOptions } from '@ai-sdk/anthropic';
 import type { Config } from './config.js';
 import type { Sql } from './db.js';
 import { loadHistory, saveExchange, type ChatRecord } from './history.js';
-import { costUsd } from './pricing.js';
+import type { ChatLimits } from './limits.js';
+import { costUsd, estimateCostUsd } from './pricing.js';
 import { readProfile } from './profile.js';
 import { buildSystemPrompt, buildUserContent } from './prompt.js';
 import { ERROR_MESSAGES } from './constants/messages.js';
@@ -15,6 +16,8 @@ export type ChatDeps = {
   config: Config;
   sql: Sql | undefined;
   getModel: (modelId: string) => LanguageModel;
+  // Rate, turn, and spend limits. Without them the chat refuses to run.
+  limits: ChatLimits | undefined;
   // Keeps the function alive for work that finishes after the response (Vercel waitUntil).
   waitUntil: (promise: Promise<unknown>) => void;
   retrieve?: ((question: string) => Promise<string | undefined>) | undefined;
@@ -28,11 +31,34 @@ const NDJSON_HEADERS = {
   'x-content-type-options': 'nosniff',
 };
 
-export function chatStatus(config: Config): Response {
+// Tells the page whether to show the panel. Cached for a minute at the edge.
+export async function chatStatus(config: Config, limits: ChatLimits | undefined): Promise<Response> {
+  const enabled = config.chatEnabled && limits !== undefined;
+  let resting = false;
+  if (enabled) {
+    try {
+      resting = await limits.isResting();
+    } catch (err) {
+      console.error('chat: could not read the spend counter', err);
+    }
+  }
   return Response.json(
-    { enabled: config.chatEnabled },
+    { enabled, resting, turnstileSiteKey: enabled && config.turnstileSecretKey ? config.turnstileSiteKey : undefined },
     { headers: { 'cache-control': 'public, max-age=60, s-maxage=60' } },
   );
+}
+
+// A rough cost for answers that stopped early, when the model reported no usage.
+function roughCostUsd(modelId: string, promptChars: number, answerChars: number): number {
+  const input = Math.ceil(promptChars / 3.5);
+  const output = Math.ceil(answerChars / 3.5);
+  return estimateCostUsd(modelId, {
+    inputTokens: input,
+    inputTokenDetails: { noCacheTokens: input, cacheReadTokens: 0, cacheWriteTokens: 0 },
+    outputTokens: output,
+    outputTokenDetails: { textTokens: output, reasoningTokens: 0 },
+    totalTokens: input + output,
+  });
 }
 
 export async function handleChat(request: Request, deps: ChatDeps): Promise<Response> {
@@ -40,9 +66,18 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
   const now = deps.now ?? Date.now;
   if (!config.chatEnabled) return errorResponse(ERRORS.Disabled);
 
+  if (!deps.limits) {
+    console.error('chat: limits store is not configured (Upstash Redis); refusing to answer');
+    return errorResponse(ERRORS.Disabled);
+  }
+  const limits = deps.limits;
+
   const validated = await validateChatRequest(request, config.maxInputChars);
   if (!validated.ok) return errorResponse(validated.error);
-  const { sessionId, message } = validated.value;
+  const { sessionId, message, turnstileToken } = validated.value;
+
+  const blocked = await limits.check({ request, sessionId, turnstileToken });
+  if (blocked) return blocked;
 
   const [history, writing] = await Promise.all([
     deps.sql ? loadHistory(deps.sql, sessionId, config.historyTurns) : Promise.resolve([]),
@@ -50,13 +85,18 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
   ]);
   const messages: ModelMessage[] = [...history, { role: 'user', content: buildUserContent(message, writing) }];
 
+  const system = buildSystemPrompt(deps.profile ?? readProfile());
+  const promptChars = system.length + JSON.stringify(messages).length;
+  const spend = (usd: number) =>
+    deps.waitUntil(limits.recordSpend(usd).catch((err: unknown) => console.error('chat: failed to record spend', err)));
+
   const started = now();
   const abort = new AbortController();
   request.signal?.addEventListener('abort', () => abort.abort(), { once: true });
 
   const result = streamText({
     model: deps.getModel(config.chatModel),
-    system: buildSystemPrompt(deps.profile ?? readProfile()),
+    system,
     messages,
     maxOutputTokens: config.maxOutputTokens,
     maxRetries: 1,
@@ -151,12 +191,20 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
         }
       }
 
-      if (status !== 'ok') return record(status);
+      if (status !== 'ok') {
+        const cost = roughCostUsd(config.chatModel, promptChars, answer.length);
+        spend(cost);
+        return record(status, undefined, cost);
+      }
       try {
         const [usage, providerMetadata] = await Promise.all([result.totalUsage, result.providerMetadata]);
-        record('ok', usage, costUsd(config.chatModel, usage, providerMetadata));
+        const cost = costUsd(config.chatModel, usage, providerMetadata);
+        spend(cost);
+        record('ok', usage, cost);
       } catch {
-        record('ok');
+        const cost = roughCostUsd(config.chatModel, promptChars, answer.length);
+        spend(cost);
+        record('ok', undefined, cost);
       }
     },
     cancel() {

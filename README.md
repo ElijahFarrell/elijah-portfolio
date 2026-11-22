@@ -60,6 +60,14 @@ Database setup: add Neon Postgres from the Vercel Marketplace (it sets `DATABASE
 
 `POST /api/chat` answers a question about Elijah, streaming the reply as newline-delimited JSON (`{"type":"text"}` pieces, then `{"type":"done"}`, or `{"type":"error"}` if it stops early). `GET /api/chat` says whether the chat is on. The model (Claude Haiku 5.5 through Vercel AI Gateway by default) answers only from `public/llms.txt`, plus retrieved writing once `RAG_ENABLED=true`. The system prompt is in `lib/prompt.ts`. Earlier turns come from the database by session ID, never from the browser. Each question is saved with its answer, token counts, and cost. Nothing is on until `CHAT_ENABLED=true`.
 
+Limits (`lib/limits.ts`) run before every answer, cheapest first:
+- **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3).
+- **Rate limit:** 10 questions per visitor per 10 minutes. Visitors are identified by a salted hash of their IP; raw IPs are never stored.
+- **Bot check:** a Cloudflare Turnstile check once per session.
+- **Turn cap:** 20 questions per session.
+
+Counters live in Upstash Redis. Without Redis the chat refuses to run, so a missing setting can't remove the spending limit. As a second backstop, set a budget on the AI Gateway key too: when it runs out the gateway returns 402 and the chat tells visitors it's resting.
+
 ## Deploy
 
 Vercel deploys on push. `vercel.json` sets the framework preset to "Other", skips install and build, serves `public/` as-is, and turns on clean URLs, so the Vercel project settings don't need changes.

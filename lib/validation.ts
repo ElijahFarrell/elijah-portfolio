@@ -1,6 +1,6 @@
 import { ERRORS, tooLong, type ApiError } from './errors.js';
 
-export type ChatRequest = { sessionId: string; message: string };
+export type ChatRequest = { sessionId: string; message: string; turnstileToken: string | undefined };
 
 export type Validated<T> = { ok: true; value: T } | { ok: false; error: ApiError };
 
@@ -59,9 +59,10 @@ export async function validateChatRequest(request: Request, maxInputChars: numbe
 
   const body = parseJson(raw);
   if (!body.ok) return body;
-  const { sessionId, message } = body.value;
+  const { sessionId, message, turnstileToken } = body.value;
   const fieldError = checkSessionId(sessionId) ?? checkMessage(message, maxInputChars);
   if (fieldError) return { ok: false, error: fieldError };
 
-  return { ok: true, value: { sessionId: sessionId as string, message: (message as string).trim() } };
+  const token = typeof turnstileToken === 'string' && turnstileToken.length <= 4096 ? turnstileToken : undefined;
+  return { ok: true, value: { sessionId: sessionId as string, message: (message as string).trim(), turnstileToken: token } };
 }
