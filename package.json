@@ -8,7 +8,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "db:migrate": "tsx scripts/db-migrate.ts"
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "dev": "tsx scripts/dev-server.ts",
+    "dev:live": "tsx scripts/dev-server.ts --live"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.1",

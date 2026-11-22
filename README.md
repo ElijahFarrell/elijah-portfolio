@@ -54,6 +54,8 @@ The pages stay static. The chat panel talks to Vercel Functions in `api/`, writt
 npm install
 npm run typecheck
 npm test
+npm run dev        # site + chat at http://localhost:8813 with a mock model (no keys needed)
+npm run dev:live   # same, but the real model through AI Gateway (needs AI_GATEWAY_API_KEY)
 ```
 
 Database setup: add Neon Postgres from the Vercel Marketplace (it sets `DATABASE_URL`), then run `npm run db:migrate` once with that URL. A daily cron (`/api/cron/cleanup`, set in `vercel.json`) deletes chat questions older than `RETENTION_DAYS` (90). Set `CRON_SECRET` so only Vercel can call it. All variables are listed in `.env.example`.
@@ -67,6 +69,12 @@ Limits (`lib/limits.ts`) run before every answer, cheapest first:
 - **Turn cap:** 20 questions per session.
 
 Counters live in Upstash Redis. Without Redis the chat refuses to run, so a missing setting can't remove the spending limit. As a second backstop, set a budget on the AI Gateway key too: when it runs out the gateway returns 402 and the chat tells visitors it's resting.
+
+The panel itself is `public/chat.js`, with its styles in the "Chat panel" section of `styles.css`. It only appears when `GET /api/chat` says the chat is on, so the pages look exactly the same until then. Details:
+- **Layout:** it opens on the right. On wide screens the page shifts left and stays usable; on phones the panel covers the page.
+- **Saved chat:** the session ID, the conversation, and whether the panel is open are kept in `localStorage` for 7 days. The chat survives refreshes and moving between pages, and "Clear chat" starts a new session.
+- **Rendering:** answers are inserted as plain text, with `https://` links turned into anchors; model output is never inserted as HTML.
+- **Turnstile:** its script loads only when the panel opens and a check is still needed.
 
 ## Deploy
 
