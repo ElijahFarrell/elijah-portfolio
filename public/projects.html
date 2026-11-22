@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Projects – Elijah Farrell</title>
-  <meta name="description" content="Projects by Elijah Farrell: AI agents, RAG services, and web apps, with links to code and live demos.">
+  <title>Projects – Elijah Farrell: AI Agents, RAG, and Apps</title>
+  <meta name="description" content="What I build outside of work: a multi-agent assistant, a RAG service, a demo AI training platform, a Fortnite rotation trainer, and more. Most of it is on GitHub.">
+  <meta name="author" content="Elijah Farrell">
   <link rel="canonical" href="https://elijahvfg.com/projects">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <script>
@@ -21,12 +22,127 @@
   <meta property="og:url" content="https://elijahvfg.com/projects">
   <meta property="og:site_name" content="Elijah Farrell">
   <meta property="og:title" content="Projects – Elijah Farrell">
-  <meta property="og:description" content="AI agents, RAG services, and web apps by Elijah Farrell.">
+  <meta property="og:description" content="AI agents, RAG services, and web apps I build outside of work. Most of it is on GitHub.">
   <meta property="og:image" content="https://elijahvfg.com/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Elijah Farrell, software engineer: backend, React, applied AI">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@theElijahVFG">
+  <meta name="twitter:creator" content="@theElijahVFG">
+  <meta name="twitter:title" content="Projects – Elijah Farrell">
+  <meta name="twitter:description" content="AI agents, RAG services, and web apps I build outside of work. Most of it is on GitHub.">
+  <meta name="twitter:image" content="https://elijahvfg.com/og.png">
+  <meta name="twitter:image:alt" content="Elijah Farrell, software engineer: backend, React, applied AI">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": "https://elijahvfg.com/projects#webpage",
+        "url": "https://elijahvfg.com/projects",
+        "name": "Projects – Elijah Farrell",
+        "isPartOf": {
+          "@id": "https://elijahvfg.com/#website"
+        },
+        "about": {
+          "@id": "https://elijahvfg.com/#person"
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Elijah Farrell",
+              "item": "https://elijahvfg.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Projects",
+              "item": "https://elijahvfg.com/projects"
+            }
+          ]
+        },
+        "hasPart": [
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "AI OS",
+            "description": "My own multi-agent assistant. A router sends each request to the right agent, with memory, RAG over documents, and MCP tools.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            },
+            "codeRepository": "https://github.com/ElijahFarrell/personal-agent",
+            "url": "https://github.com/ElijahFarrell/personal-agent",
+            "programmingLanguage": [
+              "TypeScript"
+            ]
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "Shiloh Prospecting",
+            "description": "Finds Instagram creators in a niche, checks whether they’re a fit for a partnership, and drafts the outreach.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            },
+            "codeRepository": "https://github.com/ElijahFarrell/Prospecting",
+            "url": "https://github.com/ElijahFarrell/Prospecting",
+            "programmingLanguage": [
+              "TypeScript"
+            ]
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "Rotation Lab",
+            "description": "A rotation trainer for Fortnite IGLs. Each rep is one zone reveal: you make the call, and the sim grades it.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            },
+            "codeRepository": "https://github.com/ElijahFarrell/Simulation",
+            "url": "https://rotation-lab-pi.vercel.app",
+            "programmingLanguage": [
+              "TypeScript"
+            ]
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "AI training platform",
+            "description": "A demo learning app with sample data: lessons, quizzes graded on the server, and an assistant that only answers from the lesson text.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            },
+            "codeRepository": "https://github.com/ElijahFarrell/ai-training-platform",
+            "url": "https://ai-training-platform-alpha.vercel.app"
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "LlamaIndex RAG service",
+            "description": "Upload documents and ask questions. It indexes them in Pinecone and mixes semantic and keyword (BM25) search to answer.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            },
+            "codeRepository": "https://github.com/ElijahFarrell/rag",
+            "url": "https://github.com/ElijahFarrell/rag",
+            "programmingLanguage": [
+              "Python"
+            ]
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "Course Q&A assistant",
+            "description": "A teaching assistant built on course docs, slides, and transcribed lectures. Demoing it is how I landed the Cyborg Mobile job.",
+            "author": {
+              "@id": "https://elijahvfg.com/#person"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
   <script defer src="/theme.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>

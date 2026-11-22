@@ -1,0 +1,54 @@
+# Elijah Farrell
+
+> I'm Elijah Farrell, a software engineer at Amazon, based in Arlington, VA. Day to day I work on Java microservices, React + TypeScript on the frontend, and a lot of AI. On the side I build AI agents and small tools, and I write on Substack.
+
+In the past I've written Python and C++ at Microsoft to wire a real-time call audio model into Teams, and built production AI apps for small businesses. I'm a full-stack engineer, about 3 years into shipping production software that real customers use.
+
+## Pages
+
+- [Home](https://elijahvfg.com/): intro and links
+- [Experience](https://elijahvfg.com/experience): where I've worked and what I built there
+- [Projects](https://elijahvfg.com/projects): what I build outside of work
+- [Resume (PDF)](https://elijahvfg.com/resume.pdf): the one-page version
+
+## Experience
+
+- Amazon, Software Development Engineer (Apr 2025 – Present, Arlington, VA): I work on the platform that manages construction contracts and payments for Amazon's real estate projects, about $4B in spend: Java services, TypeScript/React micro-frontends, and AI. I've built features touching ~$500M, and I review code and mentor engineers along the way.
+  - Built an LLM pipeline (Bedrock + OpenSearch RAG) that turns vendor documents into the platform's native format: from ~3 hours to under 5 minutes, 95% accuracy, $75M+ in month one.
+  - Replaced a slow chain of frontend calls with one Java API for submitting changes, with authorization checks at each approval step and idempotent retries that never create duplicates.
+  - Owned the design and full-stack build of in-place editing for items under approval, so fixes don't restart the approval flow.
+  - Built a document-import backend where deterministic matching skips the LLM for most lines and gives the same result every run.
+  - Designed and built a Python LLM error-explainer API and a shared TypeScript/React error component used by 3 teams and 10+ services.
+  - Built the team's AI developer tools: an on-call assistant on Kiro CLI with custom MCP servers for finding root causes (20+ adopters across engineering and product, org hackathon win), plus 6+ shared agent skills.
+  - Wrote root-cause analyses and fixes for ~15 production issues as on-call engineer, including high-severity incidents.
+  - Designed a Step Functions workflow that closes out budgets once work ends, recovering ~$50M in capital.
+- Zebra Technologies, Software Engineer (Feb 2025 – Apr 2025, Hybrid, Holtsville, NY): Built a Python and TensorFlow pipeline that groups products in store-shelf images (k-means, cosine similarity, Zebra's shelf-trained models) to flag ones on the wrong shelf.
+- NextWave Society, Software Engineer I (Apr 2024 – Feb 2025, Remote): Interned at Cyborg Mobile through Nov 2024, then joined NextWave, its sister nonprofit. Built a grant-writing AI agent with RAG that cut 10+ hours per submission and raised submission velocity 25%+, and shipped a chatbot for 80 users on the OpenAI Assistants API.
+- Microsoft, Software Engineer Intern, IC3-AI (May 2023 – Aug 2023, Redmond, WA): Integrated a live call audio predictor into Teams, cut processing time 68% for the call-quality (MOS) model serving 1M+ users, and improved accuracy 100% for a bandwidth estimation model in C++.
+- Microsoft, New Technologist Intern (Jun 2022 – Aug 2022, Remote): Picked for a 7-week innovation academy with Microsoft. Built a React MVP for underprivileged adult learners, with Firebase OAuth sign-in.
+
+## Projects
+
+- [AI OS](https://github.com/ElijahFarrell/personal-agent) (2026; TypeScript, Mastra, Next.js): My own multi-agent assistant. A router sends each request to the right agent, with memory, RAG over documents, and MCP tools.
+- [Shiloh Prospecting](https://github.com/ElijahFarrell/Prospecting) (2026; TypeScript, Next.js, Mastra, Convex): Finds Instagram creators in a niche, checks whether they're a fit for a partnership, and drafts the outreach.
+- [Rotation Lab](https://rotation-lab-pi.vercel.app) (2026; TypeScript, Next.js, Clerk, Convex; [code](https://github.com/ElijahFarrell/Simulation)): A rotation trainer for Fortnite IGLs. Each rep is one zone reveal: you make the call, and the sim grades it.
+- [AI training platform](https://ai-training-platform-alpha.vercel.app) (2026; Next.js, Convex, Mastra, WorkOS; [code](https://github.com/ElijahFarrell/ai-training-platform)): A demo learning app with sample data: lessons, quizzes graded on the server, and an assistant that only answers from the lesson text.
+- [LlamaIndex RAG service](https://github.com/ElijahFarrell/rag) (2025; Python, FastAPI, LlamaIndex, Pinecone): Upload documents and ask questions. It indexes them in Pinecone and mixes semantic and keyword (BM25) search to answer.
+- Course Q&A assistant (2024; OpenAI Assistants API, Deepgram; not public): A teaching assistant built on course docs, slides, and transcribed lectures. Demoing it is how I landed the Cyborg Mobile job.
+
+## Skills
+
+- Languages: Java, Python, TypeScript, JavaScript, SQL, C++
+- Backend & Cloud: Java microservices, REST APIs, Node.js, AWS (Lambda, Step Functions, DynamoDB, S3)
+- Frontend & AI: React, Next.js, RAG, Bedrock, OpenSearch, MCP servers, agent skills, Mastra, TensorFlow
+
+## Education
+
+- Stony Brook University, B.E., Computer Engineering (May 2024)
+
+## Elsewhere
+
+- [GitHub](https://github.com/ElijahFarrell)
+- [LinkedIn](https://www.linkedin.com/in/elijah-farrell)
+- [X](https://x.com/theElijahVFG)
+- [Substack](https://elijahrr.substack.com)
