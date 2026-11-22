@@ -12,6 +12,18 @@ export type Config = {
   databaseUrl: string | undefined;
   cronSecret: string | undefined;
   retentionDays: number;
+  // Master switch. The panel stays hidden and the API refuses until this is "true".
+  chatEnabled: boolean;
+  // AI Gateway model ID, e.g. anthropic/claude-haiku-5.5 or openai/gpt-6-luna.
+  chatModel: string;
+  maxInputChars: number;
+  maxOutputTokens: number;
+  // How many earlier question/answer pairs from the session to send with each question.
+  historyTurns: number;
+  // Retrieval over content_chunks (Substack, advice). Off until that table is filled.
+  ragEnabled: boolean;
+  embeddingModel: string;
+  ragTopK: number;
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -19,5 +31,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     databaseUrl: env.DATABASE_URL || undefined,
     cronSecret: env.CRON_SECRET || undefined,
     retentionDays: Math.max(1, intFromEnv('RETENTION_DAYS', 90, env)),
+    chatEnabled: env.CHAT_ENABLED === 'true',
+    chatModel: env.CHAT_MODEL || 'anthropic/claude-haiku-5.5',
+    maxInputChars: Math.max(1, intFromEnv('CHAT_MAX_INPUT_CHARS', 4000, env)),
+    maxOutputTokens: Math.max(1, intFromEnv('CHAT_MAX_OUTPUT_TOKENS', 400, env)),
+    historyTurns: intFromEnv('CHAT_HISTORY_TURNS', 6, env),
+    ragEnabled: env.RAG_ENABLED === 'true',
+    embeddingModel: env.EMBEDDING_MODEL || 'openai/text-embedding-3-small',
+    ragTopK: Math.max(1, intFromEnv('RAG_TOP_K', 4, env)),
   };
 }

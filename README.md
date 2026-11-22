@@ -58,6 +58,8 @@ npm test
 
 Database setup: add Neon Postgres from the Vercel Marketplace (it sets `DATABASE_URL`), then run `npm run db:migrate` once with that URL. A daily cron (`/api/cron/cleanup`, set in `vercel.json`) deletes chat questions older than `RETENTION_DAYS` (90). Set `CRON_SECRET` so only Vercel can call it. All variables are listed in `.env.example`.
 
+`POST /api/chat` answers a question about Elijah, streaming the reply as newline-delimited JSON (`{"type":"text"}` pieces, then `{"type":"done"}`, or `{"type":"error"}` if it stops early). `GET /api/chat` says whether the chat is on. The model (Claude Haiku 5.5 through Vercel AI Gateway by default) answers only from `public/llms.txt`, plus retrieved writing once `RAG_ENABLED=true`. The system prompt is in `lib/prompt.ts`. Earlier turns come from the database by session ID, never from the browser. Each question is saved with its answer, token counts, and cost. Nothing is on until `CHAT_ENABLED=true`.
+
 ## Deploy
 
 Vercel deploys on push. `vercel.json` sets the framework preset to "Other", skips install and build, serves `public/` as-is, and turns on clean URLs, so the Vercel project settings don't need changes.
