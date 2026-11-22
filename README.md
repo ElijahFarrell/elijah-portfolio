@@ -15,7 +15,12 @@ public/
   llms.txt         plain-text summary of the site for AI assistants
   og.png           1200x630 link-preview image
   favicon.ico
-vercel.json        static deploy config, clean URLs, redirects from the old site's routes
+vercel.json        static deploy config, clean URLs, redirects, daily cleanup cron
+api/               Vercel Functions for the "Ask about Elijah" chat (TypeScript)
+lib/               shared server code for those functions
+db/schema.sql      Postgres schema: chat log and (unused for now) pgvector content chunks
+scripts/           one-off tools, e.g. `npm run db:migrate`
+test/              Vitest tests; database tests run on an in-memory Postgres (PGlite)
 ```
 
 ## Edit
@@ -40,6 +45,18 @@ npx serve public
 ```
 
 `serve` handles clean URLs (`/experience`) the same way Vercel does. `python3 -m http.server 8000 --directory public` also works, but there you need the `.html` suffix.
+
+## Chat backend
+
+The pages stay static. The chat panel talks to Vercel Functions in `api/`, written in TypeScript.
+
+```bash
+npm install
+npm run typecheck
+npm test
+```
+
+Database setup: add Neon Postgres from the Vercel Marketplace (it sets `DATABASE_URL`), then run `npm run db:migrate` once with that URL. A daily cron (`/api/cron/cleanup`, set in `vercel.json`) deletes chat questions older than `RETENTION_DAYS` (90). Set `CRON_SECRET` so only Vercel can call it. All variables are listed in `.env.example`.
 
 ## Deploy
 
