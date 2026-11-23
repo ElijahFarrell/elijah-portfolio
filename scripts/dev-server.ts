@@ -12,6 +12,7 @@ import { chatStatus, handleChat } from '../lib/chat.js';
 import { loadConfig } from '../lib/config.js';
 import { getSql } from '../lib/db.js';
 import { ChatLimits, MemoryLimitStore } from '../lib/limits.js';
+import { gatewayPriceLookup } from '../lib/pricing.js';
 import { devMockModel } from './dev-mock-model.js';
 
 const live = process.argv.includes('--live');
@@ -28,6 +29,7 @@ const limits = new ChatLimits(
   undefined,
 );
 const sql = getSql(config.databaseUrl);
+const prices = gatewayPriceLookup(() => gateway.getAvailableModels());
 const mock = devMockModel();
 
 const TYPES: Record<string, string> = {
@@ -87,6 +89,7 @@ createServer(async (req, res) => {
             limits,
             getModel: (id) => (live ? gateway(id) : mock),
             waitUntil: (promise) => void promise.catch(() => {}),
+            prices: live ? prices : undefined,
           })
         : await chatStatus(config, limits);
 

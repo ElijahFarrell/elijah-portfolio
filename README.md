@@ -87,7 +87,7 @@ Do this on **Preview** first, check it, then repeat for **Production**. Every va
 - **History:** earlier turns load from Postgres by session ID, never from the browser.
 - **Saved questions:** every question is saved with its answer, status, tokens, cost, and latency. A daily cron (`/api/cron/cleanup`) deletes rows older than `RETENTION_DAYS` (90). No IPs or other identifiers are stored.
 - **Limits** (`lib/limits.ts`), checked before every answer, cheapest first:
-  - **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3).
+  - **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3). Each answer counts at the cost AI Gateway reports for it. Answers cut off early are estimated from the gateway's live model prices (`gateway.getAvailableModels()`), so there's no price table to keep up to date.
   - **Rate limit:** 10 questions per visitor per 10 minutes, keyed on a salted hash of the IP.
   - **Bot check:** Vercel BotID (Basic mode, free, invisible) on every question. `client/botid.ts` is bundled to `public/botid.js` by `npm run build` and loaded by the panel; `api/chat.ts` calls `checkBotId()`. Requests that don't come from a real browser on the site get a 403, so `curl` and `npm run eval -- --url` can't reach a deployment. Run the eval in-process instead.
   - **Turn cap:** 20 questions per session.
