@@ -19,7 +19,7 @@
   ],
   "functions": {
     "api/chat.ts": {
-      "includeFiles": "public/llms.txt",
+      "includeFiles": "{public/llms.txt,content/notes.md}",
       "maxDuration": 30
     }
   }

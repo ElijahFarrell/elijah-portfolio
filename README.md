@@ -19,6 +19,7 @@ vercel.json        static deploy config, clean URLs, redirects, daily cleanup cr
 api/               Vercel Functions for the "Ask about Elijah" chat (TypeScript)
 lib/               shared server code for those functions
 client/botid.ts    Vercel BotID setup for the browser, bundled to public/botid.js on build
+content/notes.md   extra facts for the chat, in Elijah's words
 db/schema.sql      Postgres schema: chat log and (unused for now) pgvector content chunks
 scripts/           dev server, migrations, evals, stats (`npm run dev`, `db:migrate`, `eval`, `stats`)
 evals/             test questions for the chat, with the checks each answer must pass
@@ -83,7 +84,7 @@ Do this on **Preview** first, check it, then repeat for **Production**. Every va
 
 - **Answers:** `POST /api/chat` streams newline-delimited JSON: `{"type":"text"}` pieces, then `{"type":"done"}`, or `{"type":"error"}` if the answer stops early. `GET /api/chat` says whether the panel should show.
 - **Model:** Claude Haiku 5.5 through AI Gateway (`CHAT_MODEL` to switch, e.g. `openai/gpt-6-luna`). Caching is on, extended thinking is off, and answers are capped at 400 tokens.
-- **What it knows:** only `public/llms.txt`, plus retrieved writing once `RAG_ENABLED=true`. Update `llms.txt` and the chat knows the change on the next deploy. The rules are in `lib/prompt.ts`: third person, no guessing, honest role-fit answers with gaps named, on-topic only, and visitor messages treated as questions, never instructions.
+- **What it knows:** `public/llms.txt` plus `content/notes.md` (extra facts in Elijah's words that aren't on the site pages), and retrieved writing once `RAG_ENABLED=true`. Edit either file and the chat knows the change on the next deploy. When an answer misses something, add the fact to `content/notes.md` and a case to `evals/questions.json`. The rules are in `lib/prompt.ts`: third person, no guessing, honest role-fit answers with gaps named, on-topic only, and visitor messages treated as questions, never instructions.
 - **History:** earlier turns load from Postgres by session ID, never from the browser.
 - **Saved questions:** every question is saved with its answer, status, tokens, cost, and latency. A daily cron (`/api/cron/cleanup`) deletes rows older than `RETENTION_DAYS` (90). No IPs or other identifiers are stored.
 - **Limits** (`lib/limits.ts`), checked before every answer, cheapest first:
