@@ -14,6 +14,13 @@
     } catch (e) {
       document.documentElement.dataset.theme = "dark";
     }
+    try {
+      // Keep the chat panel's space reserved on page changes, so the layout doesn't jump.
+      var chat = JSON.parse(localStorage.getItem("chat:v1") || "null");
+      if (chat && chat.open && sessionStorage.getItem("chat:enabled") === "1") {
+        document.documentElement.classList.add("chat-open", "chat-no-anim");
+      }
+    } catch (e) {}
   </script>
   <link rel="stylesheet" href="/styles.css">
   <meta name="theme-color" content="#3d4340">
@@ -108,6 +115,7 @@
   </script>
 
   <script defer src="/theme.js"></script>
+  <script defer src="/chat.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>

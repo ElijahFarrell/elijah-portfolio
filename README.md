@@ -19,7 +19,8 @@ vercel.json        static deploy config, clean URLs, redirects, daily cleanup cr
 api/               Vercel Functions for the "Ask about Elijah" chat (TypeScript)
 lib/               shared server code for those functions
 db/schema.sql      Postgres schema: chat log and (unused for now) pgvector content chunks
-scripts/           one-off tools, e.g. `npm run db:migrate`
+scripts/           dev server, migrations, evals, stats (`npm run dev`, `db:migrate`, `eval`, `stats`)
+evals/             test questions for the chat, with the checks each answer must pass
 test/              Vitest tests; database tests run on an in-memory Postgres (PGlite)
 ```
 
@@ -46,27 +47,66 @@ npx serve public
 
 `serve` handles clean URLs (`/experience`) the same way Vercel does. `python3 -m http.server 8000 --directory public` also works, but there you need the `.html` suffix.
 
-## Chat backend
+## "Ask about Elijah" chat
 
-The pages stay static. The chat panel talks to Vercel Functions in `api/`, written in TypeScript.
+The pages stay static. The chat panel (`public/chat.js`) talks to Vercel Functions in `api/`, written in TypeScript. It's off until `CHAT_ENABLED=true`; while it's off the panel doesn't appear and the pages look exactly the same.
 
 ```bash
 npm install
 npm run typecheck
 npm test
+npm run dev        # site + chat at http://localhost:8813 with a mock model (no keys needed)
+npm run dev:live   # same, but the real model through AI Gateway (needs AI_GATEWAY_API_KEY)
+npm run eval       # the test questions in evals/questions.json against the real model
+npm run stats      # questions per day, cost, and latency from the chat log
 ```
 
-Database setup: add Neon Postgres from the Vercel Marketplace (it sets `DATABASE_URL`), then run `npm run db:migrate` once with that URL. A daily cron (`/api/cron/cleanup`, set in `vercel.json`) deletes chat questions older than `RETENTION_DAYS` (90). Set `CRON_SECRET` so only Vercel can call it. All variables are listed in `.env.example`.
+### Turning it on
 
-`POST /api/chat` answers a question about Elijah, streaming the reply as newline-delimited JSON (`{"type":"text"}` pieces, then `{"type":"done"}`, or `{"type":"error"}` if it stops early). `GET /api/chat` says whether the chat is on. The model (Claude Haiku 5.5 through Vercel AI Gateway by default) answers only from `public/llms.txt`, plus retrieved writing once `RAG_ENABLED=true`. The system prompt is in `lib/prompt.ts`. Earlier turns come from the database by session ID, never from the browser. Each question is saved with its answer, token counts, and cost. Nothing is on until `CHAT_ENABLED=true`.
+Do this on **Preview** first, check it, then repeat for **Production**. Every variable is described in `.env.example`.
 
-Limits (`lib/limits.ts`) run before every answer, cheapest first:
-- **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3).
-- **Rate limit:** 10 questions per visitor per 10 minutes. Visitors are identified by a salted hash of their IP; raw IPs are never stored.
-- **Bot check:** a Cloudflare Turnstile check once per session.
-- **Turn cap:** 20 questions per session.
+1. **AI Gateway.** In the Vercel project, open AI Gateway and enable it. Deployments authenticate with the project's OIDC token, so there's no key to paste into production. For local runs (`dev:live`, `eval`), create an API key and put it in `AI_GATEWAY_API_KEY` in `.env.local`.
+2. **Gateway budget (backstop).** Set a budget a little above the daily cap. When it's used up the gateway returns 402 and the chat says it's resting.
+3. **Postgres.** In the Vercel Marketplace, add **Neon** and connect it to the project. It sets `DATABASE_URL`. Then create the tables once:
+   ```bash
+   vercel env pull .env.local
+   set -a; . ./.env.local; set +a
+   npm run db:migrate
+   ```
+4. **Redis.** In the Vercel Marketplace, add **Upstash for Redis** and connect it. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`. The chat refuses to run without Redis, because Redis holds the limits.
+5. **Turnstile.** In Cloudflare, create a Turnstile widget (managed mode) for `elijahvfg.com`, plus your preview domain if you test there. Set `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_VERIFY_URL` (Turnstile's server-side siteverify URL, from Cloudflare's docs). With the secret set and no verify URL, the chat refuses to run.
+6. **Secrets.** Set `CRON_SECRET` and `IP_HASH_SALT` to long random strings, e.g. `openssl rand -hex 32`. Both are required; the chat refuses to run without the salt.
+7. **Switch it on.** Set `CHAT_ENABLED=true` and redeploy.
+8. **Check it.** Open the preview, ask a few questions, and run `npm run eval`. The panel caches its on/off status for a few minutes per tab.
 
-Counters live in Upstash Redis. Without Redis the chat refuses to run, so a missing setting can't remove the spending limit. As a second backstop, set a budget on the AI Gateway key too: when it runs out the gateway returns 402 and the chat tells visitors it's resting.
+### How it works
+
+- **Answers:** `POST /api/chat` streams newline-delimited JSON: `{"type":"text"}` pieces, then `{"type":"done"}`, or `{"type":"error"}` if the answer stops early. `GET /api/chat` says whether the panel should show.
+- **Model:** Claude Haiku 5.5 through AI Gateway (`CHAT_MODEL` to switch, e.g. `openai/gpt-6-luna`). Caching is on, extended thinking is off, and answers are capped at 400 tokens.
+- **What it knows:** only `public/llms.txt`, plus retrieved writing once `RAG_ENABLED=true`. Update `llms.txt` and the chat knows the change on the next deploy. The rules are in `lib/prompt.ts`: third person, no guessing, honest role-fit answers with gaps named, on-topic only, and visitor messages treated as questions, never instructions.
+- **History:** earlier turns load from Postgres by session ID, never from the browser.
+- **Saved questions:** every question is saved with its answer, status, tokens, cost, and latency. A daily cron (`/api/cron/cleanup`) deletes rows older than `RETENTION_DAYS` (90). No IPs or other identifiers are stored.
+- **Limits** (`lib/limits.ts`), checked before every answer, cheapest first:
+  - **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3).
+  - **Rate limit:** 10 questions per visitor per 10 minutes, keyed on a salted hash of the IP.
+  - **Bot check:** a Turnstile check once per session.
+  - **Turn cap:** 20 questions per session.
+- **The panel:**
+  - **Layout:** it opens on the right. On wide screens the page shifts left and stays usable; on phones the panel covers the page.
+  - **Saved chat:** the conversation, session, and open state are kept in `localStorage` for 7 days, so the chat survives refreshes and page changes.
+  - **Rendering:** answers are inserted as plain text, with links made clickable. Model output is never inserted as HTML.
+
+### Reading the questions
+
+`npm run stats` shows questions, sessions, failures, cost, and average latency per day. Add `-- --questions` to list recent questions. For anything else, query `chat_messages` in the Neon console.
+
+### Adding Substack and advice later (retrieval)
+
+The `content_chunks` table (pgvector, 1536 dimensions for `openai/text-embedding-3-small`) and the retrieval code are already in place and switched off. When you're ready:
+
+1. Write an ingestion script, e.g. Python with LlamaIndex. It loads posts, splits them into chunks, embeds each chunk with the same model as `EMBEDDING_MODEL` (through AI Gateway or OpenAI directly), and inserts rows: `source` (`substack` or `advice`), `url`, `title`, `chunk_index`, `content`, `embedding`. `(url, chunk_index)` is unique, so re-runs can upsert.
+2. Set `RAG_ENABLED=true`. The top `RAG_TOP_K` (4) chunks are added to each question inside a `<writing>` block, and the system prompt already tells the model it may use them.
+3. Add a few writing-based questions to `evals/questions.json` and run `npm run eval`.
 
 ## Deploy
 
