@@ -6,7 +6,10 @@ import { loadHistory, saveExchange, type ChatRecord } from './history.js';
 import { costUsd } from './pricing.js';
 import { readProfile } from './profile.js';
 import { buildSystemPrompt, buildUserContent } from './prompt.js';
-import { isSameOrigin, parseChatRequest } from './request.js';
+import { ERROR_MESSAGES } from './constants/messages.js';
+import { EVENT_TYPES, PART_TYPES, type StreamEvent } from './constants/stream.js';
+import { ERRORS, errorResponse, upstreamError } from './errors.js';
+import { validateChatRequest } from './validation.js';
 
 export type ChatDeps = {
   config: Config;
@@ -19,21 +22,11 @@ export type ChatDeps = {
   now?: () => number;
 };
 
-// Response body: one JSON object per line (NDJSON).
-//   {"type":"text","text":"..."}  a piece of the answer
-//   {"type":"error","message":"..."}  the answer stopped early
-//   {"type":"done"}  the answer is complete
-export type StreamEvent = { type: 'text'; text: string } | { type: 'error'; message: string } | { type: 'done' };
-
 const NDJSON_HEADERS = {
   'content-type': 'application/x-ndjson; charset=utf-8',
   'cache-control': 'no-store',
   'x-content-type-options': 'nosniff',
 };
-
-export function jsonError(status: number, error: string, message: string): Response {
-  return Response.json({ error, message }, { status, headers: { 'cache-control': 'no-store' } });
-}
 
 export function chatStatus(config: Config): Response {
   return Response.json(
@@ -42,23 +35,14 @@ export function chatStatus(config: Config): Response {
   );
 }
 
-function upstreamError(error: unknown): Response {
-  const status = (error as { statusCode?: number } | undefined)?.statusCode;
-  // 402: the AI Gateway budget on the API key is used up.
-  if (status === 402) return jsonError(503, 'resting', 'The chat is resting for today. Please try again tomorrow.');
-  if (status === 429) return jsonError(503, 'busy', 'The chat is busy right now. Please try again in a minute.');
-  return jsonError(502, 'upstream', 'Something went wrong. Please try again.');
-}
-
 export async function handleChat(request: Request, deps: ChatDeps): Promise<Response> {
   const { config } = deps;
   const now = deps.now ?? Date.now;
-  if (!config.chatEnabled) return jsonError(503, 'disabled', "The chat isn't available right now.");
-  if (!isSameOrigin(request)) return jsonError(403, 'forbidden', 'Not allowed.');
+  if (!config.chatEnabled) return errorResponse(ERRORS.Disabled);
 
-  const parsed = await parseChatRequest(request, config.maxInputChars);
-  if (!parsed.ok) return jsonError(parsed.status, parsed.error, parsed.message);
-  const { sessionId, message } = parsed;
+  const validated = await validateChatRequest(request, config.maxInputChars);
+  if (!validated.ok) return errorResponse(validated.error);
+  const { sessionId, message } = validated.value;
 
   const [history, writing] = await Promise.all([
     deps.sql ? loadHistory(deps.sql, sessionId, config.historyTurns) : Promise.resolve([]),
@@ -99,7 +83,6 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
         inputTokens: usage?.inputTokens,
         outputTokens: usage?.outputTokens,
         cacheReadTokens: usage?.inputTokenDetails.cacheReadTokens,
-        cacheWriteTokens: usage?.inputTokenDetails.cacheWriteTokens,
         costUsd: cost,
         latencyMs: now() - started,
       }).catch((err: unknown) => console.error('chat: failed to save message', err)),
@@ -114,18 +97,18 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
     const next = await parts.next();
     if (next.done) break;
     const part = next.value;
-    if (part.type === 'text-delta') {
+    if (part.type === PART_TYPES.Delta) {
       firstText = part.text;
       break;
     }
-    if (part.type === 'error') {
+    if (part.type === PART_TYPES.Error) {
       console.error('chat: model error before first token', part.error);
       record('error');
-      return upstreamError(part.error);
+      return errorResponse(upstreamError(part.error));
     }
-    if (part.type === 'abort') {
+    if (part.type === PART_TYPES.Abort) {
       record('aborted');
-      return jsonError(499, 'aborted', 'Request cancelled.');
+      return errorResponse(ERRORS.Aborted);
     }
   }
 
@@ -137,26 +120,26 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
       try {
         if (firstText !== undefined) {
           answer += firstText;
-          send({ type: 'text', text: firstText });
+          send({ type: EVENT_TYPES.Text, text: firstText });
         }
         for (;;) {
           const next = await parts.next();
           if (next.done) break;
           const part = next.value;
-          if (part.type === 'text-delta') {
+          if (part.type === PART_TYPES.Delta) {
             answer += part.text;
-            send({ type: 'text', text: part.text });
-          } else if (part.type === 'error') {
+            send({ type: EVENT_TYPES.Text, text: part.text });
+          } else if (part.type === PART_TYPES.Error) {
             console.error('chat: model error mid-stream', part.error);
             status = 'error';
-            send({ type: 'error', message: 'The answer was cut off. Please try again.' });
+            send({ type: EVENT_TYPES.Error, message: ERROR_MESSAGES.CutOff });
             break;
-          } else if (part.type === 'abort') {
+          } else if (part.type === PART_TYPES.Abort) {
             status = 'aborted';
             break;
           }
         }
-        if (status === 'ok') send({ type: 'done' });
+        if (status === 'ok') send({ type: EVENT_TYPES.Done });
         controller.close();
       } catch (err) {
         status = abort.signal.aborted ? 'aborted' : 'error';

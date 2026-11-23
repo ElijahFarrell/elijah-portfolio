@@ -2,8 +2,6 @@ import type { Sql } from './db.js';
 
 export type EmbedFn = (text: string) => Promise<number[]>;
 
-// Finds the chunks of Elijah's longer writing closest to the question.
-// Only called when RAG_ENABLED=true; returns undefined when nothing is indexed.
 export async function retrieveWriting(
   question: string,
   deps: { sql: Sql; embed: EmbedFn; topK: number },

@@ -26,7 +26,6 @@ export type ChatRecord = {
   inputTokens?: number | undefined;
   outputTokens?: number | undefined;
   cacheReadTokens?: number | undefined;
-  cacheWriteTokens?: number | undefined;
   costUsd?: number | undefined;
   latencyMs: number;
 };
@@ -35,11 +34,11 @@ export async function saveExchange(sql: Sql, r: ChatRecord): Promise<void> {
   await sql`
     insert into chat_messages (
       session_id, question, answer, status, model,
-      input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, cost_usd, latency_ms
+      input_tokens, output_tokens, cache_read_tokens, cost_usd, latency_ms
     ) values (
       ${r.sessionId}, ${r.question}, ${r.answer}, ${r.status}, ${r.model},
       ${r.inputTokens ?? null}, ${r.outputTokens ?? null}, ${r.cacheReadTokens ?? null},
-      ${r.cacheWriteTokens ?? null}, ${r.costUsd ?? null}, ${r.latencyMs}
+      ${r.costUsd ?? null}, ${r.latencyMs}
     )
   `;
 }
