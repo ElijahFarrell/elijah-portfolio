@@ -20,9 +20,11 @@ const publicDir = join(process.cwd(), 'public');
 const config = loadConfig({ ...process.env, CHAT_ENABLED: 'true' });
 // Loose limits locally so repeated testing doesn't trip them; pass --strict to use the real ones.
 const strict = process.argv.includes('--strict');
+// Local runs keep counters in memory only, so a fixed salt is fine here.
+const localConfig = { ...config, ipHashSalt: config.ipHashSalt ?? 'local-dev', turnstileSecretKey: undefined };
 const limits = new ChatLimits(
   new MemoryLimitStore(),
-  strict ? { ...config, turnstileSecretKey: undefined } : { ...config, rateLimitMax: 1000, sessionMaxTurns: 1000, turnstileSecretKey: undefined },
+  strict ? localConfig : { ...localConfig, rateLimitMax: 1000, sessionMaxTurns: 1000 },
   undefined,
 );
 const sql = getSql(config.databaseUrl);
