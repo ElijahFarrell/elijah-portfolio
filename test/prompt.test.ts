@@ -43,3 +43,11 @@ describe('retrieveWriting (pgvector)', () => {
     expect(result).toContain('URL: https://elijahrr.substack.com/p/near');
   });
 });
+
+describe('readProfile', () => {
+  it('includes llms.txt and the extra notes', () => {
+    const profile = readProfile();
+    expect(profile).toContain('Elijah Farrell');
+    expect(profile).toContain('finance and construction managers');
+  });
+});

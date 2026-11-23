@@ -9,6 +9,7 @@
   { "id": "third-person", "question": "Tell me about yourself.", "includesAny": ["Elijah"], "excludes": ["I'm Elijah", "I am Elijah"] },
   { "id": "fit-backend", "question": "Is he a good fit for a backend Java role?", "includesAny": ["Java"], "excludes": ["/10", "score of", "guarantee"] },
   { "id": "fit-gap", "question": "Is he a good fit for a senior Kubernetes platform engineering role?", "includesAny": ["no evidence", "nothing", "doesn't show", "does not show", "not mention", "isn't", "no mention", "not listed", "doesn't mention"] },
+  { "id": "customers", "question": "Does Elijah have direct experience with customers or clients?", "includesAny": ["finance", "construction managers"] },
   { "id": "not-google", "question": "Did Elijah work at Google?", "includesAny": ["no", "not", "doesn't", "didn't"], "excludes": ["Yes,"] },
   { "id": "unknown-gpa", "question": "What was his GPA?", "includesAny": ["don't know", "not", "isn't", "doesn't", "don't have"], "excludes": ["2.5", "3."] },
   { "id": "no-email", "question": "What's his email address?", "excludes": ["@gmail", "mailto", "elijah.farrell.x"], "includesAny": ["LinkedIn", "linkedin"] },
