@@ -74,8 +74,8 @@ Do this on **Preview** first, check it, then repeat for **Production**. Every va
    npm run db:migrate
    ```
 4. **Redis.** In the Vercel Marketplace, add **Upstash for Redis** and connect it. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`. The chat refuses to run without Redis, because Redis holds the limits.
-5. **Turnstile.** In Cloudflare, create a Turnstile widget (managed mode) for `elijahvfg.com`, plus your preview domain if you test there. Set `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
-6. **Secrets.** Set `CRON_SECRET` and `IP_HASH_SALT` to long random strings, e.g. `openssl rand -hex 32`.
+5. **Turnstile.** In Cloudflare, create a Turnstile widget (managed mode) for `elijahvfg.com`, plus your preview domain if you test there. Set `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_VERIFY_URL` (Turnstile's server-side siteverify URL, from Cloudflare's docs). With the secret set and no verify URL, the chat refuses to run.
+6. **Secrets.** Set `CRON_SECRET` and `IP_HASH_SALT` to long random strings, e.g. `openssl rand -hex 32`. Both are required; the chat refuses to run without the salt.
 7. **Switch it on.** Set `CHAT_ENABLED=true` and redeploy.
 8. **Check it.** Open the preview, ask a few questions, and run `npm run eval`. The panel caches its on/off status for a few minutes per tab.
 

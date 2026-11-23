@@ -30,7 +30,8 @@ const cases = (JSON.parse(readFileSync(new URL('../evals/questions.json', import
 const config = loadConfig({ ...process.env, CHAT_ENABLED: 'true' });
 const limits = new ChatLimits(
   new MemoryLimitStore(),
-  { ...config, rateLimitMax: 1000, sessionMaxTurns: 1000, turnstileSecretKey: undefined },
+  // In-memory counters for this run only, so a fixed salt is fine here.
+  { ...config, ipHashSalt: 'eval', rateLimitMax: 1000, sessionMaxTurns: 1000, turnstileSecretKey: undefined },
   undefined,
 );
 
