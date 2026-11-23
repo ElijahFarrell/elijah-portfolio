@@ -562,8 +562,24 @@ section > h2 {
   fill: var(--accent);
 }
 
-html.chat-open .chat-launcher {
+html.chat-open .chat-launcher:not(.is-inline) {
   display: none;
+}
+
+.chat-slot {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+}
+
+.chat-slot:empty {
+  display: none;
+}
+
+.chat-launcher.is-inline {
+  position: static;
+  padding: 0.65rem 1.15rem 0.65rem 0.95rem;
+  font-size: var(--text-base);
 }
 
 .chat-panel {

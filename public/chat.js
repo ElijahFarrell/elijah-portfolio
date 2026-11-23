@@ -175,7 +175,15 @@
       ]
     );
 
-    document.body.appendChild(els.launcher);
+    // Pages with a slot (under the home and projects grids) show the launcher there,
+    // centered in the page; elsewhere it floats in the corner.
+    var slot = document.querySelector("[data-chat-slot]");
+    if (slot) {
+      els.launcher.classList.add("is-inline");
+      slot.appendChild(els.launcher);
+    } else {
+      document.body.appendChild(els.launcher);
+    }
     document.body.appendChild(els.panel);
 
     els.launcher.addEventListener("click", function () {
