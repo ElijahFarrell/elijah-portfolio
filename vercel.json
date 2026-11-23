@@ -16,5 +16,11 @@
       "path": "/api/cron/cleanup",
       "schedule": "0 6 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/chat.ts": {
+      "includeFiles": "public/llms.txt",
+      "maxDuration": 30
+    }
+  }
 }
