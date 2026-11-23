@@ -28,7 +28,7 @@ async function setup(model: LanguageModel, env: Record<string, string> = {}) {
     config,
     sql,
     getModel: () => model,
-    limits: new ChatLimits(new MemoryLimitStore(), config, undefined),
+    limits: new ChatLimits(new MemoryLimitStore(), { ...config, ipHashSalt: 'test-salt' }, undefined),
     waitUntil: (p) => void pending.push(p),
     profile: 'Elijah Farrell is a software engineer at Amazon.',
   };
@@ -171,7 +171,7 @@ describe('handleChat', () => {
 describe('chatStatus', () => {
   it('reports whether the chat is on, cacheable for a minute', async () => {
     const config = loadConfig({ CHAT_ENABLED: 'true' });
-    const limits = new ChatLimits(new MemoryLimitStore(), config, undefined);
+    const limits = new ChatLimits(new MemoryLimitStore(), { ...config, ipHashSalt: 'test-salt' }, undefined);
     const res = await chatStatus(config, limits);
     expect(await res.json()).toEqual({ enabled: true, resting: false });
     expect(res.headers.get('cache-control')).toContain('s-maxage=60');

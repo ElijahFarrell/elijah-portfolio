@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { chatStatus, handleChat, type ChatDeps } from '../lib/chat.js';
 import { loadConfig } from '../lib/config.js';
-import { ChatLimits, MemoryLimitStore, clientKey, utcDay } from '../lib/limits.js';
+import { ChatLimits, MemoryLimitStore, clientKey, missingLimitSetting, utcDay } from '../lib/limits.js';
 import { redisFromEnv } from '../lib/limits-redis.js';
 import { createTurnstileVerifier } from '../lib/turnstile.js';
 import { mockModel, readEvents } from './helpers/model.js';
 
 const SESSION = 'session_abcdefghijklmnop';
 const NOW = Date.parse('2026-11-22T15:00:00Z');
+const VERIFY_URL = 'https://turnstile.test/siteverify';
 
 function ask(message = 'What has he built?', extra: Record<string, unknown> = {}, ip = '203.0.113.7') {
   return new Request('https://elijahvfg.com/api/chat', {
@@ -20,7 +21,7 @@ function ask(message = 'What has he built?', extra: Record<string, unknown> = {}
 function setup(env: Record<string, string> = {}, verifier?: (token: string, ip: string) => Promise<boolean>) {
   const config = loadConfig({ CHAT_ENABLED: 'true', ...env });
   const store = new MemoryLimitStore(() => NOW);
-  const limits = new ChatLimits(store, config, verifier, () => NOW);
+  const limits = new ChatLimits(store, { ...config, ipHashSalt: 'test-salt' }, verifier, () => NOW);
   const pending: Promise<unknown>[] = [];
   const deps: ChatDeps = {
     config,
@@ -120,13 +121,24 @@ describe('limits', () => {
   });
 });
 
+describe('missingLimitSetting', () => {
+  it('requires the IP salt, and the verify URL once Turnstile is on', () => {
+    expect(missingLimitSetting(loadConfig({}))).toBe('IP_HASH_SALT');
+    expect(missingLimitSetting(loadConfig({ IP_HASH_SALT: 's' }))).toBeUndefined();
+    expect(missingLimitSetting(loadConfig({ IP_HASH_SALT: 's', TURNSTILE_SECRET_KEY: 'k' }))).toBe('TURNSTILE_VERIFY_URL');
+    expect(
+      missingLimitSetting(loadConfig({ IP_HASH_SALT: 's', TURNSTILE_SECRET_KEY: 'k', TURNSTILE_VERIFY_URL: VERIFY_URL })),
+    ).toBeUndefined();
+  });
+});
+
 describe('createTurnstileVerifier', () => {
   it('posts the token, secret, and IP to Cloudflare', async () => {
     const fetchImpl = vi.fn(async () => Response.json({ success: true }));
-    const verify = createTurnstileVerifier('secret', fetchImpl as unknown as typeof fetch);
+    const verify = createTurnstileVerifier('secret', VERIFY_URL, fetchImpl as unknown as typeof fetch);
     expect(await verify('tok', '203.0.113.7')).toBe(true);
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    expect(url).toBe(VERIFY_URL);
     expect(Object.fromEntries(init.body as URLSearchParams)).toEqual({
       secret: 'secret',
       response: 'tok',
@@ -135,9 +147,9 @@ describe('createTurnstileVerifier', () => {
   });
 
   it('fails closed on errors or a failed check', async () => {
-    expect(await createTurnstileVerifier('s', (async () => Response.json({ success: false })) as unknown as typeof fetch)('t', '')).toBe(false);
+    expect(await createTurnstileVerifier('s', VERIFY_URL, (async () => Response.json({ success: false })) as unknown as typeof fetch)('t', '')).toBe(false);
     expect(
-      await createTurnstileVerifier('s', (async () => {
+      await createTurnstileVerifier('s', VERIFY_URL, (async () => {
         throw new Error('network');
       }) as unknown as typeof fetch)('t', ''),
     ).toBe(false);

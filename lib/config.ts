@@ -38,11 +38,14 @@ export type Config = {
   sessionMaxTurns: number;
   // Once the day's spend (UTC) reaches this, the chat rests until tomorrow.
   dailyBudgetUsd: number;
-  // Salt for hashing visitor IPs before they're used as rate-limit keys.
-  ipHashSalt: string;
-  // Cloudflare Turnstile. When the secret is set, each new session must pass a check.
+  // Salt for hashing visitor IPs before they're used as rate-limit keys. Required:
+  // a salt in this public repo would make the hashes easy to reverse.
+  ipHashSalt: string | undefined;
+  // Cloudflare Turnstile. When the secret is set, each new session must pass a check
+  // against the verify endpoint in TURNSTILE_VERIFY_URL.
   turnstileSiteKey: string | undefined;
   turnstileSecretKey: string | undefined;
+  turnstileVerifyUrl: string | undefined;
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -62,8 +65,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     rateLimitWindowSeconds: Math.max(1, intFromEnv('RATE_LIMIT_WINDOW_SECONDS', 600, env)),
     sessionMaxTurns: Math.max(1, intFromEnv('SESSION_MAX_TURNS', 20, env)),
     dailyBudgetUsd: floatFromEnv('DAILY_BUDGET_USD', 3, env),
-    ipHashSalt: env.IP_HASH_SALT || 'elijahvfg-chat',
+    ipHashSalt: env.IP_HASH_SALT || undefined,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY || undefined,
     turnstileSecretKey: env.TURNSTILE_SECRET_KEY || undefined,
+    turnstileVerifyUrl: env.TURNSTILE_VERIFY_URL || undefined,
   };
 }

@@ -1,12 +1,16 @@
 import type { TurnstileVerifier } from './limits.js';
 
-// Checks a Cloudflare Turnstile token with Cloudflare's siteverify endpoint.
-export function createTurnstileVerifier(secret: string, fetchImpl: typeof fetch = fetch): TurnstileVerifier {
+// Checks a Cloudflare Turnstile token with the siteverify endpoint at `verifyUrl`.
+export function createTurnstileVerifier(
+  secret: string,
+  verifyUrl: string,
+  fetchImpl: typeof fetch = fetch,
+): TurnstileVerifier {
   return async (token, ip) => {
     try {
       const body = new URLSearchParams({ secret, response: token });
       if (ip) body.set('remoteip', ip);
-      const res = await fetchImpl('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      const res = await fetchImpl(verifyUrl, {
         method: 'POST',
         body,
         signal: AbortSignal.timeout(5000),

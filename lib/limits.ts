@@ -17,6 +17,16 @@ export interface LimitStore {
 
 export type TurnstileVerifier = (token: string, ip: string) => Promise<boolean>;
 
+// The settings ChatLimits reads, with the salt known to be set.
+export type LimitsConfig = Config & { ipHashSalt: string };
+
+// Says which required setting is missing, if any. Without them the chat refuses to run.
+export function missingLimitSetting(config: Config): string | undefined {
+  if (!config.ipHashSalt) return 'IP_HASH_SALT';
+  if (config.turnstileSecretKey && !config.turnstileVerifyUrl) return 'TURNSTILE_VERIFY_URL';
+  return undefined;
+}
+
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export function utcDay(ms: number): string {
@@ -37,7 +47,7 @@ export function clientIp(request: Request): string {
 export class ChatLimits {
   constructor(
     private readonly store: LimitStore,
-    private readonly config: Config,
+    private readonly config: LimitsConfig,
     private readonly verifyTurnstile: TurnstileVerifier | undefined,
     private readonly now: () => number = Date.now,
   ) {}

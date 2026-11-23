@@ -2,8 +2,6 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import type { LimitStore } from './limits.js';
 
-// Upstash Redis via the Vercel Marketplace sets KV_REST_API_URL/TOKEN;
-// a direct Upstash setup uses UPSTASH_REDIS_REST_URL/TOKEN. Either works.
 export function redisFromEnv(env: NodeJS.ProcessEnv = process.env): Redis | undefined {
   const url = env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL;
   const token = env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN;
