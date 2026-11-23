@@ -1,7 +1,7 @@
 // Runs the chat's test questions and checks the answers.
 //
 //   npm run eval                      in-process, real model via AI Gateway (needs AI_GATEWAY_API_KEY)
-//   npm run eval -- --url <base-url>  against a deployment's /api/chat (Turnstile must be off there)
+//   npm run eval -- --url <base-url>  against a running dev server (deployments block it: BotID only passes real browsers)
 //        [--bypass <token>]           Vercel "Protection Bypass for Automation" token for previews
 //   npm run eval -- --only fit-gap    run one case
 //
@@ -31,7 +31,7 @@ const config = loadConfig({ ...process.env, CHAT_ENABLED: 'true' });
 const limits = new ChatLimits(
   new MemoryLimitStore(),
   // In-memory counters for this run only, so a fixed salt is fine here.
-  { ...config, ipHashSalt: 'eval', rateLimitMax: 1000, sessionMaxTurns: 1000, turnstileSecretKey: undefined },
+  { ...config, ipHashSalt: 'eval', rateLimitMax: 1000, sessionMaxTurns: 1000 },
   undefined,
 );
 

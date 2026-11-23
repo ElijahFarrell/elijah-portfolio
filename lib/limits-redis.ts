@@ -45,12 +45,4 @@ export class RedisLimitStore implements LimitStore {
     // Keep two days so the counter outlives the UTC day it belongs to.
     await this.redis.multi().incrby(key, micros).expire(key, 2 * 24 * 60 * 60).exec();
   }
-
-  async isVerified(sessionId: string) {
-    return (await this.redis.exists(`${PREFIX}:verified:${sessionId}`)) === 1;
-  }
-
-  async markVerified(sessionId: string, ttlSeconds: number) {
-    await this.redis.set(`${PREFIX}:verified:${sessionId}`, 1, { ex: ttlSeconds });
-  }
 }

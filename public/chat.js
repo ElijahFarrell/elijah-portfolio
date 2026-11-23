@@ -22,7 +22,7 @@
   var els = {};
   var busy = false;
   var controller = null;
-  var turnstile = { token: null, widgetId: null, loading: null };
+  var botReady = null;
 
   // - Storage ---------------------------------------------------------
 
@@ -34,7 +34,7 @@
   }
 
   function freshState() {
-    return { sessionId: newSessionId(), messages: [], open: false, verified: false, updatedAt: Date.now() };
+    return { sessionId: newSessionId(), messages: [], open: false, updatedAt: Date.now() };
   }
 
   function loadState() {
@@ -146,9 +146,7 @@
     });
     els.send = el("button", { type: "submit", class: "chat-send", "aria-label": "Send" });
     els.send.innerHTML = ICONS.send;
-    els.turnstile = el("div", { class: "chat-turnstile" });
     els.form = el("form", { class: "chat-form" }, [
-      els.turnstile,
       el("div", { class: "chat-input-row" }, [els.input, els.send]),
       el("p", {
         class: "chat-note",
@@ -277,7 +275,6 @@
     els.panel.inert = !open;
     els.launcher.setAttribute("aria-expanded", open ? "true" : "false");
     if (open) {
-      prepareTurnstile();
       scrollToEnd();
       if (opts && opts.focus) els.input.focus();
     } else if (opts && opts.focus) {
@@ -289,65 +286,31 @@
     if (busy) stop();
     state = freshState();
     state.open = true;
-    turnstile.token = null;
     saveState();
     renderAll();
-    resetTurnstile();
     els.input.focus();
   }
 
-  // - Turnstile (bot check, once per session) --------------------------
+  // - Bot check (Vercel BotID) ----------------------------------------
 
-  function needsTurnstile() {
-    return !!(status && status.turnstileSiteKey) && !state.verified;
-  }
-
-  function prepareTurnstile() {
-    if (!needsTurnstile() || turnstile.widgetId !== null || turnstile.loading) return;
-    turnstile.loading = new Promise(function (resolve) {
-      if (window.turnstile) return resolve();
-      var script = el("script", {
-        src: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
-        async: "",
-        defer: ""
-      });
+  // /botid.js marks this page's requests to /api/chat as coming from a real browser.
+  function loadBotId() {
+    botReady = new Promise(function (resolve) {
+      var script = el("script", { src: "/botid.js", async: "" });
       script.onload = resolve;
       script.onerror = resolve;
       document.head.appendChild(script);
-    }).then(function () {
-      if (!window.turnstile) return;
-      turnstile.widgetId = window.turnstile.render(els.turnstile, {
-        sitekey: status.turnstileSiteKey,
-        appearance: "interaction-only",
-        theme: root.dataset.theme === "light" ? "light" : "dark",
-        callback: function (token) {
-          turnstile.token = token;
-        },
-        "expired-callback": function () {
-          turnstile.token = null;
-        },
-        "error-callback": function () {
-          turnstile.token = null;
-        }
-      });
     });
   }
 
-  function resetTurnstile() {
-    turnstile.token = null;
-    if (window.turnstile && turnstile.widgetId !== null) window.turnstile.reset(turnstile.widgetId);
-  }
-
-  function waitForToken() {
-    if (!needsTurnstile()) return Promise.resolve(undefined);
-    prepareTurnstile();
-    var started = Date.now();
-    return new Promise(function (resolve) {
-      (function check() {
-        if (turnstile.token || Date.now() - started > 10000) return resolve(turnstile.token || undefined);
-        setTimeout(check, 150);
-      })();
-    });
+  // Waits for the script before the first question, but never more than 5 seconds.
+  function waitForBotId() {
+    return Promise.race([
+      botReady || Promise.resolve(),
+      new Promise(function (resolve) {
+        setTimeout(resolve, 5000);
+      })
+    ]);
   }
 
   // - Asking ----------------------------------------------------------
@@ -379,11 +342,11 @@
     updateControls();
 
     try {
-      var token = await waitForToken();
+      await waitForBotId();
       var res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ sessionId: state.sessionId, message: question, turnstileToken: token }),
+        body: JSON.stringify({ sessionId: state.sessionId, message: question }),
         signal: controller.signal
       });
 
@@ -391,10 +354,6 @@
         var problem = await res.json().catch(function () {
           return {};
         });
-        if (problem.error === "verify") {
-          state.verified = false;
-          resetTurnstile();
-        }
         if (problem.error === "resting") {
           status = Object.assign({}, status, { resting: true });
           try {
@@ -406,10 +365,6 @@
         return;
       }
 
-      if (needsTurnstile()) {
-        state.verified = true;
-        els.turnstile.textContent = "";
-      }
       await readStream(res, answer, bubble);
     } catch (err) {
       if (err && err.name === "AbortError") {
@@ -470,6 +425,7 @@
       root.classList.remove("chat-open");
       return;
     }
+    loadBotId();
     build();
     renderAll();
     // Reopen without animation when the visitor moves between pages.

@@ -21,7 +21,7 @@ const config = loadConfig({ ...process.env, CHAT_ENABLED: 'true' });
 // Loose limits locally so repeated testing doesn't trip them; pass --strict to use the real ones.
 const strict = process.argv.includes('--strict');
 // Local runs keep counters in memory only, so a fixed salt is fine here.
-const localConfig = { ...config, ipHashSalt: config.ipHashSalt ?? 'local-dev', turnstileSecretKey: undefined };
+const localConfig = { ...config, ipHashSalt: config.ipHashSalt ?? 'local-dev' };
 const limits = new ChatLimits(
   new MemoryLimitStore(),
   strict ? localConfig : { ...localConfig, rateLimitMax: 1000, sessionMaxTurns: 1000 },
@@ -53,6 +53,14 @@ function staticPath(pathname: string): string | undefined {
 
 createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? `localhost:${port}`}`);
+
+  // BotID's challenge only exists on Vercel; locally the script would make every
+  // /api/chat fetch fail. The handler here doesn't check for bots anyway.
+  if (url.pathname === '/botid.js') {
+    res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
+    res.end('// Vercel BotID runs on deployments only.\n');
+    return;
+  }
 
   if (url.pathname === '/api/chat') {
     const abort = new AbortController();

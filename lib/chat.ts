@@ -43,7 +43,7 @@ export async function chatStatus(config: Config, limits: ChatLimits | undefined)
     }
   }
   return Response.json(
-    { enabled, resting, turnstileSiteKey: enabled && config.turnstileSecretKey ? config.turnstileSiteKey : undefined },
+    { enabled, resting },
     { headers: { 'cache-control': 'public, max-age=60, s-maxage=60' } },
   );
 }
@@ -74,9 +74,9 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
 
   const validated = await validateChatRequest(request, config.maxInputChars);
   if (!validated.ok) return errorResponse(validated.error);
-  const { sessionId, message, turnstileToken } = validated.value;
+  const { sessionId, message } = validated.value;
 
-  const blocked = await limits.check({ request, sessionId, turnstileToken });
+  const blocked = await limits.check({ request, sessionId });
   if (blocked) return blocked;
 
   const [history, writing] = await Promise.all([
