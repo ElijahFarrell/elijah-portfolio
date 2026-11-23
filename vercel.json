@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "",
   "buildCommand": "",
   "outputDirectory": "public",
   "cleanUrls": true,
@@ -10,6 +9,12 @@
       "source": "/:section(en|about|work|services|blog|gallery)/:rest*",
       "destination": "/",
       "permanent": false
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/cleanup",
+      "schedule": "0 6 * * *"
     }
   ]
 }
