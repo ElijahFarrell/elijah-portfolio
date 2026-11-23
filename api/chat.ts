@@ -5,6 +5,7 @@ import { loadConfig } from '../lib/config.js';
 import { getSql } from '../lib/db.js';
 import { ChatLimits, missingLimitSetting } from '../lib/limits.js';
 import { RedisLimitStore, redisFromEnv } from '../lib/limits-redis.js';
+import { gatewayPriceLookup } from '../lib/pricing.js';
 import { retrieveWriting } from '../lib/retrieval.js';
 import { createTurnstileVerifier } from '../lib/turnstile.js';
 import type { Config } from '../lib/config.js';
@@ -24,6 +25,9 @@ function createLimits(config: Config): ChatLimits | undefined {
   return new ChatLimits(new RedisLimitStore(redis), { ...config, ipHashSalt: config.ipHashSalt }, verifier);
 }
 
+// Module scope, so a warm instance reuses the prices it already fetched.
+const prices = gatewayPriceLookup(() => gateway.getAvailableModels());
+
 // GET /api/chat: whether the chat panel should show. POST /api/chat: ask a question.
 export async function GET(): Promise<Response> {
   const config = loadConfig();
@@ -39,6 +43,7 @@ export async function POST(request: Request): Promise<Response> {
     getModel: (modelId) => gateway(modelId),
     limits: createLimits(config),
     waitUntil,
+    prices,
     retrieve:
       config.ragEnabled && sql
         ? (question) =>

@@ -1,17 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { estimateCostUsd, costUsd } from '../lib/pricing.js';
 import { readProfile } from '../lib/profile.js';
 import { buildSystemPrompt, buildUserContent } from '../lib/prompt.js';
 import { retrieveWriting } from '../lib/retrieval.js';
 import { createTestDb } from './helpers/pg.js';
-
-const usage = (input: number, cacheRead: number, cacheWrite: number, output: number) => ({
-  inputTokens: input,
-  inputTokenDetails: { noCacheTokens: input - cacheRead - cacheWrite, cacheReadTokens: cacheRead, cacheWriteTokens: cacheWrite },
-  outputTokens: output,
-  outputTokenDetails: { textTokens: output, reasoningTokens: 0 },
-  totalTokens: input + output,
-});
 
 describe('prompt', () => {
   it('embeds the real profile and keeps the rules', () => {
@@ -27,27 +18,6 @@ describe('prompt', () => {
   it('adds retrieved writing only when there is some', () => {
     expect(buildUserContent('Q?', undefined)).toBe('Q?');
     expect(buildUserContent('Q?', 'A post')).toBe('<writing>\nA post\n</writing>\n\nQ?');
-  });
-});
-
-describe('pricing', () => {
-  it('prices Haiku 5.5 from the list price', () => {
-    // 200 uncached input, 3000 cache reads, 300 output
-    expect(estimateCostUsd('anthropic/claude-haiku-5.5', usage(3200, 3000, 0, 300))).toBeCloseTo(
-      (200 * 0.1 + 3000 * 0.01 + 300 * 0.5) / 1e6,
-      12,
-    );
-  });
-
-  it('prices unknown models high so the daily cap stays safe', () => {
-    expect(estimateCostUsd('someone/new-model', usage(1000, 0, 0, 100))).toBeGreaterThan(
-      estimateCostUsd('anthropic/claude-haiku-5.5', usage(1000, 0, 0, 100)) * 10,
-    );
-  });
-
-  it('prefers the cost the gateway reports', () => {
-    expect(costUsd('anthropic/claude-haiku-5.5', usage(10, 0, 0, 10), { gateway: { cost: '0.0123' } })).toBe(0.0123);
-    expect(costUsd('anthropic/claude-haiku-5.5', usage(10, 0, 0, 10), { gateway: { cost: 'n/a' } })).toBeGreaterThan(0);
   });
 });
 

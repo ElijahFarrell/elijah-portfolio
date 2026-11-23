@@ -4,7 +4,7 @@ import type { Config } from './config.js';
 import type { Sql } from './db.js';
 import { loadHistory, saveExchange, type ChatRecord } from './history.js';
 import type { ChatLimits } from './limits.js';
-import { costUsd, estimateCostUsd } from './pricing.js';
+import { costUsd, estimateCostUsd, type PriceLookup } from './pricing.js';
 import { readProfile } from './profile.js';
 import { buildSystemPrompt, buildUserContent } from './prompt.js';
 import { ERROR_MESSAGES } from './constants/messages.js';
@@ -21,6 +21,8 @@ export type ChatDeps = {
   // Keeps the function alive for work that finishes after the response (Vercel waitUntil).
   waitUntil: (promise: Promise<unknown>) => void;
   retrieve?: ((question: string) => Promise<string | undefined>) | undefined;
+  // Current model prices, for when the gateway doesn't report a request's cost.
+  prices?: PriceLookup | undefined;
   profile?: string;
   now?: () => number;
 };
@@ -49,10 +51,15 @@ export async function chatStatus(config: Config, limits: ChatLimits | undefined)
 }
 
 // A rough cost for answers that stopped early, when the model reported no usage.
-function roughCostUsd(modelId: string, promptChars: number, answerChars: number): number {
+async function roughCostUsd(
+  modelId: string,
+  lookup: PriceLookup | undefined,
+  promptChars: number,
+  answerChars: number,
+): Promise<number> {
   const input = Math.ceil(promptChars / 3.5);
   const output = Math.ceil(answerChars / 3.5);
-  return estimateCostUsd(modelId, {
+  return estimateCostUsd(await lookup?.(modelId), {
     inputTokens: input,
     inputTokenDetails: { noCacheTokens: input, cacheReadTokens: 0, cacheWriteTokens: 0 },
     outputTokens: output,
@@ -88,7 +95,7 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
   const system = buildSystemPrompt(deps.profile ?? readProfile());
   const promptChars = system.length + JSON.stringify(messages).length;
   const spend = (usd: number) =>
-    deps.waitUntil(limits.recordSpend(usd).catch((err: unknown) => console.error('chat: failed to record spend', err)));
+    limits.recordSpend(usd).catch((err: unknown) => console.error('chat: failed to record spend', err));
 
   const started = now();
   const abort = new AbortController();
@@ -110,23 +117,33 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
   });
 
   let answer = '';
-  const record = (status: ChatRecord['status'], usage?: LanguageModelUsage, cost?: number) => {
+  const record = async (status: ChatRecord['status'], usage?: LanguageModelUsage, cost?: number) => {
     if (!deps.sql) return;
-    const sql = deps.sql;
-    deps.waitUntil(
-      saveExchange(sql, {
-        sessionId,
-        question: message,
-        answer,
-        status,
-        model: config.chatModel,
-        inputTokens: usage?.inputTokens,
-        outputTokens: usage?.outputTokens,
-        cacheReadTokens: usage?.inputTokenDetails.cacheReadTokens,
-        costUsd: cost,
-        latencyMs: now() - started,
-      }).catch((err: unknown) => console.error('chat: failed to save message', err)),
-    );
+    await saveExchange(deps.sql, {
+      sessionId,
+      question: message,
+      answer,
+      status,
+      model: config.chatModel,
+      inputTokens: usage?.inputTokens,
+      outputTokens: usage?.outputTokens,
+      cacheReadTokens: usage?.inputTokenDetails.cacheReadTokens,
+      costUsd: cost,
+      latencyMs: now() - started,
+    }).catch((err: unknown) => console.error('chat: failed to save message', err));
+  };
+
+  // Prices the answer, adds it to the day's spend, and saves the exchange.
+  // Runs after the response ends, so a slow price lookup never holds up the answer.
+  const settle = async (status: ChatRecord['status']) => {
+    const finished =
+      status === 'ok'
+        ? await Promise.all([result.totalUsage, result.providerMetadata]).catch(() => undefined)
+        : undefined;
+    const cost = finished
+      ? await costUsd(config.chatModel, finished[0], finished[1], deps.prices)
+      : await roughCostUsd(config.chatModel, deps.prices, promptChars, answer.length);
+    await Promise.all([spend(cost), record(status, finished?.[0], cost)]);
   };
 
   // Wait for the first piece of text before answering, so a failure up front
@@ -143,11 +160,11 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
     }
     if (part.type === PART_TYPES.Error) {
       console.error('chat: model error before first token', part.error);
-      record('error');
+      deps.waitUntil(record('error'));
       return errorResponse(upstreamError(part.error));
     }
     if (part.type === PART_TYPES.Abort) {
-      record('aborted');
+      deps.waitUntil(record('aborted'));
       return errorResponse(ERRORS.Aborted);
     }
   }
@@ -190,22 +207,7 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
           // Already closed by a cancelled reader.
         }
       }
-
-      if (status !== 'ok') {
-        const cost = roughCostUsd(config.chatModel, promptChars, answer.length);
-        spend(cost);
-        return record(status, undefined, cost);
-      }
-      try {
-        const [usage, providerMetadata] = await Promise.all([result.totalUsage, result.providerMetadata]);
-        const cost = costUsd(config.chatModel, usage, providerMetadata);
-        spend(cost);
-        record('ok', usage, cost);
-      } catch {
-        const cost = roughCostUsd(config.chatModel, promptChars, answer.length);
-        spend(cost);
-        record('ok', undefined, cost);
-      }
+      deps.waitUntil(settle(status));
     },
     cancel() {
       abort.abort();
