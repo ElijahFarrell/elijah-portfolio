@@ -13,10 +13,13 @@ create table if not exists chat_messages (
   -- ok | aborted | error
   status text not null default 'ok',
   model text,
+  -- cost_usd is what the daily cap and `npm run stats` use. The token counts
+  -- explain it: input vs output shows where the money goes, and
+  -- cache_read_tokens shows whether prompt caching is working (the system
+  -- prompt is most of each request, so a run of zeros means paying full price).
   input_tokens integer,
   output_tokens integer,
   cache_read_tokens integer,
-  cache_write_tokens integer,
   cost_usd numeric(12, 8),
   latency_ms integer
 );
