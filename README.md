@@ -18,6 +18,7 @@ public/
 vercel.json        static deploy config, clean URLs, redirects, daily cleanup cron
 api/               Vercel Functions for the "Ask about Elijah" chat (TypeScript)
 lib/               shared server code for those functions
+client/botid.ts    Vercel BotID setup for the browser, bundled to public/botid.js on build
 db/schema.sql      Postgres schema: chat log and (unused for now) pgvector content chunks
 scripts/           dev server, migrations, evals, stats (`npm run dev`, `db:migrate`, `eval`, `stats`)
 evals/             test questions for the chat, with the checks each answer must pass
@@ -74,10 +75,9 @@ Do this on **Preview** first, check it, then repeat for **Production**. Every va
    npm run db:migrate
    ```
 4. **Redis.** In the Vercel Marketplace, add **Upstash for Redis** and connect it. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`. The chat refuses to run without Redis, because Redis holds the limits.
-5. **Turnstile.** In Cloudflare, create a Turnstile widget (managed mode) for `elijahvfg.com`, plus your preview domain if you test there. Set `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `TURNSTILE_VERIFY_URL` (Turnstile's server-side siteverify URL, from Cloudflare's docs). With the secret set and no verify URL, the chat refuses to run.
-6. **Secrets.** Set `CRON_SECRET` and `IP_HASH_SALT` to long random strings, e.g. `openssl rand -hex 32`. Both are required; the chat refuses to run without the salt.
-7. **Switch it on.** Set `CHAT_ENABLED=true` and redeploy.
-8. **Check it.** Open the preview, ask a few questions, and run `npm run eval`. The panel caches its on/off status for a few minutes per tab.
+5. **Secrets.** Set `CRON_SECRET` and `IP_HASH_SALT` to long random strings, e.g. `openssl rand -hex 32`. Both are required; the chat refuses to run without the salt.
+6. **Switch it on.** Set `CHAT_ENABLED=true` and redeploy.
+7. **Check it.** Open the preview, ask a few questions, and run `npm run eval`. The panel caches its on/off status for a few minutes per tab.
 
 ### How it works
 
@@ -89,7 +89,7 @@ Do this on **Preview** first, check it, then repeat for **Production**. Every va
 - **Limits** (`lib/limits.ts`), checked before every answer, cheapest first:
   - **Daily budget:** stops once the day's spend reaches `DAILY_BUDGET_USD` ($3).
   - **Rate limit:** 10 questions per visitor per 10 minutes, keyed on a salted hash of the IP.
-  - **Bot check:** a Turnstile check once per session.
+  - **Bot check:** Vercel BotID (Basic mode, free, invisible) on every question. `client/botid.ts` is bundled to `public/botid.js` by `npm run build` and loaded by the panel; `api/chat.ts` calls `checkBotId()`. Requests that don't come from a real browser on the site get a 403, so `curl` and `npm run eval -- --url` can't reach a deployment. Run the eval in-process instead.
   - **Turn cap:** 20 questions per session.
 - **The panel:**
   - **Layout:** it opens on the right. On wide screens the page shifts left and stays usable; on phones the panel covers the page.

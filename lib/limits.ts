@@ -11,21 +11,13 @@ export interface LimitStore {
   incrementTurns(sessionId: string, ttlSeconds: number): Promise<number>;
   getSpendMicros(day: string): Promise<number>;
   addSpendMicros(day: string, micros: number): Promise<void>;
-  isVerified(sessionId: string): Promise<boolean>;
-  markVerified(sessionId: string, ttlSeconds: number): Promise<void>;
 }
 
-export type TurnstileVerifier = (token: string, ip: string) => Promise<boolean>;
+// Vercel BotID in production (api/chat.ts). Resolves true when the request looks automated.
+export type BotCheck = () => Promise<boolean>;
 
 // The settings ChatLimits reads, with the salt known to be set.
 export type LimitsConfig = Config & { ipHashSalt: string };
-
-// Says which required setting is missing, if any. Without them the chat refuses to run.
-export function missingLimitSetting(config: Config): string | undefined {
-  if (!config.ipHashSalt) return 'IP_HASH_SALT';
-  if (config.turnstileSecretKey && !config.turnstileVerifyUrl) return 'TURNSTILE_VERIFY_URL';
-  return undefined;
-}
 
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
@@ -40,15 +32,11 @@ export function clientKey(request: Request, salt: string): string {
   return createHash('sha256').update(`${salt}:${ip}`).digest('hex').slice(0, 32);
 }
 
-export function clientIp(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || '';
-}
-
 export class ChatLimits {
   constructor(
     private readonly store: LimitStore,
     private readonly config: LimitsConfig,
-    private readonly verifyTurnstile: TurnstileVerifier | undefined,
+    private readonly isBot: BotCheck | undefined,
     private readonly now: () => number = Date.now,
   ) {}
 
@@ -56,11 +44,11 @@ export class ChatLimits {
   async check(input: {
     request: Request;
     sessionId: string;
-    turnstileToken: string | undefined;
   }): Promise<Response | undefined> {
     const { config, store } = this;
 
     if (await this.isResting()) return errorResponse(ERRORS.Resting);
+    if (this.isBot && (await this.isBot())) return errorResponse(ERRORS.Bot);
 
     const visitor = clientKey(input.request, config.ipHashSalt);
     const rate = await store.hit(`ip:${visitor}`, config.rateLimitMax, config.rateLimitWindowSeconds);
@@ -68,12 +56,6 @@ export class ChatLimits {
       const res = errorResponse(ERRORS.RateLimited);
       res.headers.set('retry-after', String(rate.retryAfterSeconds));
       return res;
-    }
-
-    if (this.verifyTurnstile && !(await store.isVerified(input.sessionId))) {
-      const ok = input.turnstileToken ? await this.verifyTurnstile(input.turnstileToken, clientIp(input.request)) : false;
-      if (!ok) return errorResponse(ERRORS.Verify);
-      await store.markVerified(input.sessionId, SESSION_TTL_SECONDS);
     }
 
     const turns = await store.incrementTurns(input.sessionId, SESSION_TTL_SECONDS);
@@ -99,7 +81,6 @@ export class MemoryLimitStore implements LimitStore {
   private hits = new Map<string, number[]>();
   private turns = new Map<string, number>();
   private spend = new Map<string, number>();
-  private verified = new Set<string>();
 
   constructor(private readonly now: () => number = Date.now) {}
 
@@ -125,13 +106,5 @@ export class MemoryLimitStore implements LimitStore {
 
   async addSpendMicros(day: string, micros: number) {
     this.spend.set(day, (this.spend.get(day) ?? 0) + micros);
-  }
-
-  async isVerified(sessionId: string) {
-    return this.verified.has(sessionId);
-  }
-
-  async markVerified(sessionId: string) {
-    this.verified.add(sessionId);
   }
 }

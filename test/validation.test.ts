@@ -35,7 +35,7 @@ describe('validation checks', () => {
 describe('validateChatRequest', () => {
   it('returns the trimmed fields for a good request', async () => {
     const result = await validateChatRequest(post({ sessionId: SESSION, message: '  Hello  ' }), 100);
-    expect(result).toEqual({ ok: true, value: { sessionId: SESSION, message: 'Hello', turnstileToken: undefined } });
+    expect(result).toEqual({ ok: true, value: { sessionId: SESSION, message: 'Hello' } });
   });
 
   it('returns the first failing check', async () => {

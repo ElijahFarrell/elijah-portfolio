@@ -15,7 +15,7 @@ export const ERRORS = {
   Upstream: { status: 502, code: 'upstream', message: ERROR_MESSAGES.Upstream },
   Aborted: { status: 499, code: 'aborted', message: ERROR_MESSAGES.Aborted },
   RateLimited: { status: 429, code: 'rate_limited', message: ERROR_MESSAGES.RateLimited },
-  Verify: { status: 403, code: 'verify', message: ERROR_MESSAGES.Verify },
+  Bot: { status: 403, code: 'bot', message: ERROR_MESSAGES.Bot },
   SessionLimit: { status: 429, code: 'session_limit', message: ERROR_MESSAGES.SessionLimit },
 } as const satisfies Record<string, ApiError>;
 

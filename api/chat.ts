@@ -3,25 +3,31 @@ import { waitUntil } from '@vercel/functions';
 import { chatStatus, handleChat } from '../lib/chat.js';
 import { loadConfig } from '../lib/config.js';
 import { getSql } from '../lib/db.js';
-import { ChatLimits, missingLimitSetting } from '../lib/limits.js';
+import { checkBotId } from 'botid/server';
+import { ChatLimits } from '../lib/limits.js';
 import { RedisLimitStore, redisFromEnv } from '../lib/limits-redis.js';
 import { retrieveWriting } from '../lib/retrieval.js';
-import { createTurnstileVerifier } from '../lib/turnstile.js';
 import type { Config } from '../lib/config.js';
 
 function createLimits(config: Config): ChatLimits | undefined {
   const redis = redisFromEnv();
   if (!redis) return undefined;
-  const missing = missingLimitSetting(config);
-  if (missing || !config.ipHashSalt) {
-    console.error(`chat: ${missing} is not set; refusing to answer`);
+  if (!config.ipHashSalt) {
+    console.error('chat: IP_HASH_SALT is not set; refusing to answer');
     return undefined;
   }
-  const verifier =
-    config.turnstileSecretKey && config.turnstileVerifyUrl
-      ? createTurnstileVerifier(config.turnstileSecretKey, config.turnstileVerifyUrl)
-      : undefined;
-  return new ChatLimits(new RedisLimitStore(redis), { ...config, ipHashSalt: config.ipHashSalt }, verifier);
+  return new ChatLimits(new RedisLimitStore(redis), { ...config, ipHashSalt: config.ipHashSalt }, isBot);
+}
+
+// Vercel BotID (Basic, free). The page loads /botid.js, which marks real browsers'
+// requests to /api/chat. If the check itself fails, treat the request as a bot.
+async function isBot(): Promise<boolean> {
+  try {
+    return (await checkBotId()).isBot;
+  } catch (err) {
+    console.error('chat: BotID check failed', err);
+    return true;
+  }
 }
 
 // GET /api/chat: whether the chat panel should show. POST /api/chat: ask a question.

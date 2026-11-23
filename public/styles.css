@@ -761,14 +761,6 @@ html.chat-no-anim .chat-panel {
   border-top: 1px solid var(--border);
 }
 
-.chat-turnstile:empty {
-  display: none;
-}
-
-.chat-turnstile {
-  margin-bottom: var(--space-sm);
-}
-
 .chat-input-row {
   display: flex;
   align-items: flex-end;

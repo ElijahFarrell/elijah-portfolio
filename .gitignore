@@ -3,3 +3,5 @@
 .env*.local
 node_modules
 .env
+# Built by `npm run build` (client/botid.ts)
+public/botid.js
